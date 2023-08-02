@@ -1,0 +1,62 @@
+definitions:
+  model.FundRecordDTO:
+    properties:
+      amount:
+        type: number
+      code:
+        type: string
+      date:
+        type: string
+      name:
+        type: string
+      quantity:
+        type: number
+      type:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /fund:
+    get:
+      responses: {}
+      tags:
+      - fund_controller
+  /fund/records:
+    get:
+      responses: {}
+      tags:
+      - fund_record_controller
+    post:
+      parameters:
+      - description: FundRecordDTO
+        in: body
+        name: record
+        required: true
+        schema:
+          $ref: '#/definitions/model.FundRecordDTO'
+      responses: {}
+      tags:
+      - fund_record_controller
+  /funds/{fund}:
+    get:
+      parameters:
+      - description: fundCode
+        in: path
+        name: fund
+        required: true
+        type: string
+      responses: {}
+      tags:
+      - fund_controller
+    post:
+      parameters:
+      - description: fundCode
+        in: path
+        name: fund
+        required: true
+        type: string
+      responses: {}
+      tags:
+      - fund_controller
+swagger: "2.0"

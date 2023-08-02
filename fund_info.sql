@@ -1,0 +1,16 @@
+CREATE TABLE `fund`.`fund_info` (
+  `ID`   bigint(20) NOT NULL AUTO_INCREMENT ,
+  `FUND_CODE`  varchar(10) NOT NULL COMMENT '基金代码',
+  `NAME`  varchar(100) NOT NULL COMMENT '基金名称' ,
+  `JZRQ`   date NOT NULL COMMENT '净值时间',
+  `DWJZ`   double NOT NULL COMMENT '净值' ,
+  `GSZ`   double NULL COMMENT '估值' ,
+  `GSZZL`   double NULL COMMENT '估值涨幅' ,
+  `GZTIME`   datetime NULL COMMENT '估值时间' ,
+  `CREATED_AT`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `UPDATED_AT`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  `RECORD_VERSION`  int(11) NOT NULL DEFAULT '1',
+  `IS_DELETED`   tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`),
+  KEY `IDX_FUND_CODE_JZRQ` (`FUND_CODE`,`JZRQ`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC COMMENT='基金信息';
