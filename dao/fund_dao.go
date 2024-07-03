@@ -72,8 +72,16 @@ func InsertFunds(fundInfos []*model.FundInfo) {
 func InsertFund(fundInfo *model.FundInfo) error {
 
 	now := time.Now()
-	r, err := Db.Exec("insert into fund_info(FUND_CODE, NAME, JZRQ, DWJZ, GSZ, GSZZL, GZTIME, CREATED_AT, UPDATED_AT)values(?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		fundInfo.FundCode, fundInfo.Name, fundInfo.Jzrq, fundInfo.Dwjz, fundInfo.Gsz, fundInfo.Gszzl, fundInfo.Gztime, now, now)
+
+	var r sql.Result
+	var err error
+	if fundInfo.Gsz == "" && fundInfo.Gszzl == "" {
+		r, err = Db.Exec("insert into fund_info(FUND_CODE, NAME, JZRQ, DWJZ, GZTIME, CREATED_AT, UPDATED_AT)values(?, ?, ?, ?, ?, ?, ?)",
+			fundInfo.FundCode, fundInfo.Name, fundInfo.Jzrq, fundInfo.Dwjz, fundInfo.Gztime, now, now)
+	} else {
+		r, err = Db.Exec("insert into fund_info(FUND_CODE, NAME, JZRQ, DWJZ, GSZ, GSZZL, GZTIME, CREATED_AT, UPDATED_AT)values(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			fundInfo.FundCode, fundInfo.Name, fundInfo.Jzrq, fundInfo.Dwjz, fundInfo.Gsz, fundInfo.Gszzl, fundInfo.Gztime, now, now)
+	}
 
 	if err != nil {
 		fmt.Println("exec failed, ", err)
