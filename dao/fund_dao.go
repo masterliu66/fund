@@ -54,6 +54,32 @@ func FindReportByFundCode(fundCode string) (*model.FundInfoReportDTO, error) {
 	return &fundInfoReport, nil
 }
 
+func FindReportByFundCodeAndRate(fundCode string, rate float64) (*model.FundInfoReportDTO, error) {
+
+	var fundInfoReport model.FundInfoReportDTO
+	sql := `
+		select FUND_CODE, NAME, MAX(DWJZ) MAX_DWJZ, MIN(DWJZ) MIN_DWJZ
+		from (
+			select FUND_CODE, NAME, DWJZ
+			from (
+				select FUND_CODE, NAME, DWJZ,
+					   row_number() over(partition by FUND_CODE order by DWJZ) rn,
+					   count(*) over(partition by FUND_CODE) cnt
+				from fund_info
+				where FUND_CODE=?
+			) t
+			where t.rn in (round(cnt * ?), round(cnt * ?))
+		) report
+		group by FUND_CODE, NAME
+	`
+	err := Db.Get(&fundInfoReport, sql, fundCode, (1 - rate), rate)
+	if err != nil {
+		fmt.Println("exec failed, ", err)
+		return nil, err
+	}
+	return &fundInfoReport, nil
+}
+
 func InsertFunds(fundInfos []*model.FundInfo) {
 
 	executeWithTransactional(func(conn *sql.Tx) error {

@@ -170,11 +170,36 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 		fmt.Printf("fund: %s name: %s dwjz report historyMin:%f historyMax: %f lastYearAvg: %f\n",
 			fund, fundName, historyMin, historyMax, historyAvg)
 
+		historyFundInfoTp80Report, err := dao.FindReportByFundCodeAndRate(fund, 0.8)
+		if err != nil {
+			return nil, err
+		}
+
+		tp80Min := historyFundInfoTp80Report.MinDwjz
+		tp80Max := historyFundInfoTp80Report.MaxDwjz
+
+		fmt.Printf("fund: %s name: %s dwjz report tp80Min:%f tp80Max: %f \n", fund, fundName, tp80Min, tp80Max)
+
+		historyFundInfoTp85Report, err := dao.FindReportByFundCodeAndRate(fund, 0.85)
+		if err != nil {
+			return nil, err
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		tp85Min := historyFundInfoTp85Report.MinDwjz
+		tp85Max := historyFundInfoTp85Report.MaxDwjz
+
+		fmt.Printf("fund: %s name: %s dwjz report tp85Min:%f tp85Max: %f \n", fund, fundName, tp85Min, tp85Max)
+
 		res = append(res, model.FundInfoReport{FundCode: fund, Name: fundName,
 			LastYearMaxDwjz: lastYearMax, LastYearMinDwjz: lastYearMin,
 			LastSeasonMaxDwjz: lastSeasonMax, LastSeasonMinDwjz: lastSeasonMin,
 			LastMonthMaxDwjz: lastMonthMax, LastMonthMinDwjz: lastMonthMin,
 			HistoryMaxDwjz: historyMax, HistoryMinDwjz: historyMin, HistoryAvgDwjz: historyAvg,
+			Tp80MinDwjz: tp80Min, Tp80MaxDwjz: tp80Max, Tp85MinDwjz: tp85Min, Tp85MaxDwjz: tp85Max,
 			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: gsz, GszzlFormat: gszzlFormat})
 	}
 

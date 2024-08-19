@@ -20,10 +20,10 @@ func GetFundsInfo(c *gin.Context) {
 		return
 	}
 
-	reports2, err := service.CalFundsStrategy2(model.ForeignFunds)
-	if err == nil {
-		reports = append(reports, reports2...)
-	}
+	//reports2, err := service.CalFundsStrategy2(model.ForeignFunds)
+	//if err == nil {
+	//	reports = append(reports, reports2...)
+	//}
 
 	c.Writer.Write([]byte(template.GetFundReportTemplate(reports)))
 }

@@ -25,17 +25,23 @@ type FundInfoReport struct {
 	MaxDwjz           float64
 	AvgDwjz           float64
 	MinDwjz           float64
+	Tp80MinDwjz       float64
+	Tp80MaxDwjz       float64
+	Tp85MinDwjz       float64
+	Tp85MaxDwjz       float64
 	Gsz               float64
 	GszzlFormat       string
 }
 
 func (report *FundInfoReport) ToString() string {
 
-	return fmt.Sprintf("%s, %s, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %s",
+	return fmt.Sprintf("%s, %s, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %s",
 		report.FundCode, report.Name,
-		report.HistoryMaxDwjz, report.HistoryAvgDwjz, report.HistoryMinDwjz,
+		report.HistoryMaxDwjz, report.HistoryMinDwjz,
+		report.Tp80MinDwjz, report.Tp80MaxDwjz,
+		report.Tp85MinDwjz, report.Tp85MaxDwjz,
 		report.LastYearMaxDwjz, report.LastYearMinDwjz,
 		report.LastSeasonMaxDwjz, report.LastSeasonMinDwjz,
 		report.LastMonthMaxDwjz, report.LastMonthMinDwjz,
-		report.MaxDwjz, report.AvgDwjz, report.MinDwjz, report.Gsz, report.GszzlFormat)
+		report.MaxDwjz, report.MinDwjz, report.Gsz, report.GszzlFormat)
 }
