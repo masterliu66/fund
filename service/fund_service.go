@@ -8,6 +8,7 @@ import (
 	"fund/model"
 	"math"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -86,6 +87,9 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 	for _, fund := range funds {
 
 		currentInfo := GetFundInfo(fund)
+		if currentInfo == nil {
+			continue
+		}
 		jzrq, err := time.Parse("2006-01-02", currentInfo.Jzrq)
 		if err != nil {
 			fmt.Println("parse Jzrq failed, ", err)
@@ -240,11 +244,13 @@ func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 		var lastMonthMax, lastMonthMin float64
 		var historyMax, historyMin, historyAvg, historySum float64
 		var max, min, avg, sum, total float64
+		var tp80Min, tp80Max, tp85Min, tp85Max float64
 		lastYearMin = math.MaxFloat64
 		lastSeasonMin = math.MaxFloat64
 		lastMonthMin = math.MaxFloat64
 		historyMin = math.MaxFloat64
 		min = math.MaxFloat64
+		var dwjzList []float64
 		for _, info := range infos {
 			dwjz, _ := strconv.ParseFloat(info.Dwjz, 64)
 			jzrq, _ := time.Parse("2006-01-02", info.Jzrq)
@@ -269,17 +275,26 @@ func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 				lastYearMax = math.Max(lastYearMax, dwjz)
 				lastYearMin = math.Min(lastYearMin, dwjz)
 			}
+			dwjzList = append(dwjzList, dwjz)
 		}
 		if min == math.MaxFloat64 {
 			min = 0
 		}
 		historyAvg = historySum / float64(len(infos))
 		avg = sum / total
+		sort.Float64s(dwjzList)
+		lengh := float64(len(dwjzList))
+		tp80Min = dwjzList[int(lengh*0.2)]
+		tp80Max = dwjzList[int(lengh*0.8)]
+		tp85Min = dwjzList[int(lengh*0.15)]
+		tp85Max = dwjzList[int(lengh*0.85)]
+
 		res = append(res, model.FundInfoReport{FundCode: fund, Name: infos[0].Name,
 			LastYearMaxDwjz: lastYearMax, LastYearMinDwjz: lastYearMin,
 			LastSeasonMaxDwjz: lastSeasonMax, LastSeasonMinDwjz: lastSeasonMin,
 			LastMonthMaxDwjz: lastMonthMax, LastMonthMinDwjz: lastMonthMin,
 			HistoryMaxDwjz: historyMax, HistoryMinDwjz: historyMin, HistoryAvgDwjz: historyAvg,
+			Tp80MinDwjz: tp80Min, Tp80MaxDwjz: tp80Max, Tp85MinDwjz: tp85Min, Tp85MaxDwjz: tp85Max,
 			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: 0, GszzlFormat: ""})
 	}
 
