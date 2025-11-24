@@ -10,7 +10,7 @@ import (
 
 func NewRouter() *gin.Engine {
 	router := gin.New()
-	router.LoadHTMLGlob("frontend/index.html")
+	router.LoadHTMLFiles("frontend/index.html")
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
