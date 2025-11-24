@@ -1,10 +1,8 @@
 package web
 
 import (
-	"fmt"
 	"fund/model"
 	"fund/service"
-	"fund/template"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -16,7 +14,7 @@ func GetFundsInfo(c *gin.Context) {
 
 	reports, err := service.CalFundsStrategy(model.Funds)
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -25,7 +23,7 @@ func GetFundsInfo(c *gin.Context) {
 		reports = append(reports, reports2...)
 	}
 
-	c.Writer.Write([]byte(template.GetFundReportTemplate(reports)))
+	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "success", "data": reports})
 }
 
 // GetFundInfo
@@ -37,11 +35,11 @@ func GetFundInfo(c *gin.Context) {
 	fund := c.Param("fund")
 	reports, err := service.CalFundsStrategy([]string{fund})
 	if err != nil {
-		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.Writer.Write([]byte(template.GetFundReportTemplate(reports)))
+	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "success", "data": reports})
 }
 
 // InsertHistoryFunds

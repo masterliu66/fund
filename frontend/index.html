@@ -1,0 +1,142 @@
+<html>
+  <head>
+    <title>基金查询</title>
+    <style>
+      th:nth-child(2), td:nth-child(2) {
+        min-width: 300px;
+        text-align: left;
+        padding-left: 15px
+      }
+
+      body {
+        font-family: Arial;
+        background: #667eea;
+        color: white;
+        padding: 20px
+      }
+
+      .container {
+        max-width: 1600px;
+        margin: 0 auto; padding: 0 20px
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        color: black
+      }
+
+      th, td {
+        min-width: 68px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: center
+      }
+
+      th {
+        background: #667eea;
+        color: white
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container"><h1>📊 基金数据查询</h1>
+      <button onclick="loadData()">加载数据</button>
+      <input id="search" placeholder="搜索基金代码">
+      <button onclick="search()">搜索</button>
+      <table id="table" style="display:none">
+        <thead>
+        <tr>
+          <th>代码</th>
+          <th>名称</th>
+          <th>历史最高</th>
+          <th>历史最低</th>
+          <th>TP20</th>
+          <th>TP80</th>
+          <th>TP15</th>
+          <th>TP85</th>
+          <th>1年最高</th>
+          <th>1年最低</th>
+          <th>90天最高</th>
+          <th>90天最低</th>
+          <th>上月最高</th>
+          <th>上月最低</th>
+          <th>本月最高</th>
+          <th>本月最低</th>
+          <th>当日估值</th>
+          <th>当日涨幅</th>
+        </tr>
+        </thead>
+        <tbody id="body"></tbody>
+      </table>
+      <div id="msg"></div>
+    </div>
+    <script>
+      const API = "http://localhost:8000";
+
+      function loadData() {
+        fetch(API + "/fund").then(r => r.json()).then(d => {
+          if (d.code === 0) {
+            show(d.data)
+          } else {
+            msg("失败")
+          }
+        }).catch(e => msg("错误: " + e.message))
+      }
+
+      function search() {
+        const c = document.getElementById("search").value;
+        if (!c) {
+          msg("请输入代码");
+          return
+        }
+        fetch(API + "/funds/" + c).then(r => r.json()).then(d => {
+          if (d.code === 0) {
+            show(d.data)
+          } else {
+            msg("失败")
+          }
+        }).catch(e => msg("错误: " + e.message))
+      }
+
+      function show(d) {
+        const body = document.getElementById("body");
+        body.innerHTML = "";
+        d.forEach(item => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${item.FundCode}</td>
+                           <td>${item.Name}</td>
+                           <td>${fmt(item.HistoryMaxDwjz)}</td>
+                           <td>${fmt(item.HistoryMinDwjz)}</td>
+                           <td>${fmt(item.Tp80MinDwjz)}</td>
+                           <td>${fmt(item.Tp80MaxDwjz)}</td>
+                           <td>${fmt(item.Tp85MinDwjz)}</td
+                           ><td>${fmt(item.Tp85MaxDwjz)}</td>
+                           <td>${fmt(item.LastYearMaxDwjz)}</td>
+                           <td>${fmt(item.LastYearMinDwjz)}</td>
+                           <td>${fmt(item.LastSeasonMaxDwjz)}</td>
+                           <td>${fmt(item.LastSeasonMinDwjz)}</td>
+                           <td>${fmt(item.LastMonthMaxDwjz)}</td>
+                           <td>${fmt(item.LastMonthMinDwjz)}</td>
+                           <td>${fmt(item.MaxDwjz)}</td>
+                           <td>${fmt(item.MinDwjz)}</td>
+                           <td>${fmt(item.Gsz)}</td>
+                           <td>${item.GszzlFormat}</td>`;
+          body.appendChild(row)
+        });
+        document.getElementById("table").style.display = "table"
+      }
+
+      function fmt(n) {
+        return n ? parseFloat(n).toFixed(4) : "-"
+      }
+
+      function msg(m) {
+        document.getElementById("msg").textContent = m
+      }
+
+      window.addEventListener("load", loadData);
+    </script>
+  </body>
+</html>
