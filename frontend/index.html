@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
   <head>
     <title>基金查询</title>
     <style>
@@ -9,7 +9,7 @@
       }
 
       body {
-        font-family: Arial;
+        font-family: Arial,sans-serif;
         background: #667eea;
         color: white;
         padding: 20px
@@ -42,9 +42,34 @@
   </head>
   <body>
     <div class="container"><h1>📊 基金数据查询</h1>
-      <button onclick="loadData()">加载数据</button>
-      <input id="search" placeholder="搜索基金代码">
+      <label><input id="search" placeholder="搜索基金代码"></label>
       <button onclick="search()">搜索</button>
+      <button onclick="loadData()">重置</button>
+      <div class="controls" style="margin:20px 0;padding:15px;background:rgba(255,255,255,0.1);border-radius:8px">
+        <div style="margin-bottom:10px;font-weight:bold">列显示设置:</div>
+        <label><input type="checkbox" id="col0" checked onchange="toggleColumn(0)"> 代码</label>
+        <label><input type="checkbox" id="col1" checked onchange="toggleColumn(1)"> 名称</label>
+        <label><input type="checkbox" id="col2" onchange="toggleColumn(2)"> 历史最高</label>
+        <label><input type="checkbox" id="col3" onchange="toggleColumn(3)"> 历史最低</label>
+        <label><input type="checkbox" id="col4" checked onchange="toggleColumn(4)"> TP20</label>
+        <label><input type="checkbox" id="col5" checked onchange="toggleColumn(5)"> TP80</label>
+        <label><input type="checkbox" id="col6" checked onchange="toggleColumn(6)"> TP15</label>
+        <label><input type="checkbox" id="col7" checked onchange="toggleColumn(7)"> TP85</label>
+        <label><input type="checkbox" id="col8" onchange="toggleColumn(8)"> 1年最高</label>
+        <label><input type="checkbox" id="col9" onchange="toggleColumn(9)"> 1年最低</label>
+        <label><input type="checkbox" id="col10" checked onchange="toggleColumn(10)"> 90天最高</label>
+        <label><input type="checkbox" id="col11" checked onchange="toggleColumn(11)"> 90天最低</label>
+        <label><input type="checkbox" id="col12" checked onchange="toggleColumn(12)"> 上月最高</label>
+        <label><input type="checkbox" id="col13" checked onchange="toggleColumn(13)"> 上月最低</label>
+        <label><input type="checkbox" id="col14" onchange="toggleColumn(14)"> 本月最高</label>
+        <label><input type="checkbox" id="col15" onchange="toggleColumn(15)"> 本月最低</label>
+        <label><input type="checkbox" id="col16" checked onchange="toggleColumn(16)"> 当日估值</label>
+        <label><input type="checkbox" id="col17" checked onchange="toggleColumn(17)"> 当日涨幅</label>
+        <br><br>
+        <button onclick="showAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold;margin-right:10px">显示全部</button>
+        <button onclick="hideAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold">隐藏全部</button>
+        <button onclick="resetToDefault()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold">恢复默认</button>
+      </div>
       <table id="table" style="display:none">
         <thead>
         <tr>
@@ -74,6 +99,28 @@
     </div>
     <script>
       const API = window.location.origin;
+      const DEFAULT_COLUMN_STATES=[
+        true,   // 0: 代码
+        true,   // 1: 名称
+        false,  // 2: 历史最高 (隐藏)
+        false,  // 3: 历史最低 (隐藏)
+        true,   // 4: TP20
+        true,   // 5: TP80
+        true,   // 6: TP15
+        true,   // 7: TP85
+        false,  // 8: 1年最高 (隐藏)
+        false,  // 9: 1年最低 (隐藏)
+        true,   // 10: 90天最高
+        true,   // 11: 90天最低
+        true,   // 12: 上月最高
+        true,   // 13: 上月最低
+        false,  // 14: 本月最高 (隐藏)
+        false,  // 15: 本月最低 (隐藏)
+        true,   // 16: 当日估值
+        true    // 17: 当日涨幅
+      ];
+
+      let columnStates = [...DEFAULT_COLUMN_STATES];
 
       function loadData() {
         fetch(API + "/fund").then(r => r.json()).then(d => {
@@ -126,17 +173,59 @@
           body.appendChild(row)
         });
         document.getElementById("table").style.display = "table"
+        applyColumnVisibility()
       }
 
       function fmt(n) {
         return n ? parseFloat(n).toFixed(4) : "-"
       }
 
-      function msg(m) {
-        document.getElementById("msg").textContent = m
+      function toggleColumn(i) {
+        columnStates[i] = !columnStates[i];
+        document.getElementById("col" + i).checked = columnStates[i];
+        applyColumnVisibility()
       }
 
-      window.addEventListener("load", loadData);
+      function applyColumnVisibility() {
+        const t = document.getElementById("table");
+        if (!t) {
+          return;
+        }
+        t.querySelectorAll("tr").forEach(r => {
+          r.querySelectorAll("th,td").forEach((c, i) => {
+            c.style.display = columnStates[i] ? "" : "none"
+          })
+        })
+      }
+
+      function showAllColumns() {
+        for (let i = 0; i < 18; i++) {
+          columnStates[i] = true;
+          document.getElementById("col" + i).checked = true
+        }
+        applyColumnVisibility()
+      }
+
+      function hideAllColumns() {
+        for (let i = 0; i < 18; i++) {
+          columnStates[i] = false;
+          document.getElementById("col" + i).checked = false
+        }
+        applyColumnVisibility()
+      }
+
+      function resetToDefault() {
+        for (let i = 0; i < 18; i++) {
+          columnStates[i] = DEFAULT_COLUMN_STATES[i];
+          document.getElementById("col" + i).checked = columnStates[i]
+        }
+        applyColumnVisibility()
+      }
+
+      window.addEventListener("load", function () {
+        loadData();
+      });
+
     </script>
   </body>
 </html>
