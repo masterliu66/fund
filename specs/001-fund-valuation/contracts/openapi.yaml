@@ -1,0 +1,141 @@
+openapi: 3.0.0
+info:
+  title: Fund Valuation API
+  version: 1.0.0
+
+paths:
+  /fund:
+    get:
+      summary: 获取预设基金列表的估值与分析报告
+      tags: [fund]
+      responses:
+        '200':
+          description: 成功返回基金估值报告列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 0
+                  msg:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FundInfoReport'
+        '500':
+          description: 服务器内部错误
+
+  /funds/{fund}:
+    get:
+      summary: 获取单只基金的估值与分析报告
+      tags: [fund]
+      parameters:
+        - name: fund
+          in: path
+          required: true
+          description: 基金代码
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 成功返回单只基金估值报告
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  msg:
+                    type: string
+                  data:
+                    $ref: '#/components/schemas/FundInfoReport'
+        '500':
+          description: 服务器内部错误
+
+    post:
+      summary: 触发指定基金历史净值数据的补录/刷新
+      tags: [fund]
+      parameters:
+        - name: fund
+          in: path
+          required: true
+          description: 基金代码
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 触发成功
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: SUCCESS
+
+components:
+  schemas:
+    FundInfoReport:
+      type: object
+      properties:
+        fundCode:
+          type: string
+        name:
+          type: string
+        historyMaxDwjz:
+          type: number
+          format: double
+        historyMinDwjz:
+          type: number
+          format: double
+        lastYearMaxDwjz:
+          type: number
+        lastYearMinDwjz:
+          type: number
+        lastSeasonMaxDwjz:
+          type: number
+        lastSeasonMinDwjz:
+          type: number
+        lastMonthMaxDwjz:
+          type: number
+        lastMonthMinDwjz:
+          type: number
+        maxDwjz:
+          type: number
+        minDwjz:
+          type: number
+        tp80MinDwjz:
+          type: number
+        tp80MaxDwjz:
+          type: number
+        tp85MinDwjz:
+          type: number
+        tp85MaxDwjz:
+          type: number
+        gsz:
+          type: number
+        gszzlFormat:
+          type: string
+        valuationStatus:
+          type: string
+          description: 当前估值状态（高估/合理/低估/未知）
+        valuationScore:
+          type: number
+        investAdvice:
+          type: string
+        riskNote:
+          type: string
+        expectedReturnMin:
+          type: number
+          description: 预期年化收益下限（0.08 代表 8%）
+        expectedReturnMax:
+          type: number
+        expectedReturnNote:
+          type: string
+        dataStatus:
+          type: string
+        dataStatusNote:
+          type: string
