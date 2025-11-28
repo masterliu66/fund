@@ -6,6 +6,7 @@ import (
 	"fund/dao"
 	"fund/httpt"
 	"fund/model"
+	"fund/util"
 	"math"
 	"regexp"
 	"sort"
@@ -189,22 +190,20 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 			return nil, err
 		}
 
-		if err != nil {
-			return nil, err
-		}
-
 		tp85Min := historyFundInfoTp85Report.MinDwjz
 		tp85Max := historyFundInfoTp85Report.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report tp85Min:%f tp85Max: %f \n", fund, fundName, tp85Min, tp85Max)
 
-		res = append(res, model.FundInfoReport{FundCode: fund, Name: fundName,
+		report := model.FundInfoReport{FundCode: fund, Name: fundName,
 			LastYearMaxDwjz: lastYearMax, LastYearMinDwjz: lastYearMin,
 			LastSeasonMaxDwjz: lastSeasonMax, LastSeasonMinDwjz: lastSeasonMin,
 			LastMonthMaxDwjz: lastMonthMax, LastMonthMinDwjz: lastMonthMin,
 			HistoryMaxDwjz: historyMax, HistoryMinDwjz: historyMin, HistoryAvgDwjz: historyAvg,
 			Tp80MinDwjz: tp80Min, Tp80MaxDwjz: tp80Max, Tp85MinDwjz: tp85Min, Tp85MaxDwjz: tp85Max,
-			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: gsz, GszzlFormat: gszzlFormat})
+			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: gsz, GszzlFormat: gszzlFormat}
+		util.FillValuationFields(&report)
+		res = append(res, report)
 	}
 
 	return res, nil
@@ -289,13 +288,15 @@ func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 		tp85Min = dwjzList[int(lengh*0.15)]
 		tp85Max = dwjzList[int(lengh*0.85)]
 
-		res = append(res, model.FundInfoReport{FundCode: fund, Name: infos[0].Name,
+		report := model.FundInfoReport{FundCode: fund, Name: infos[0].Name,
 			LastYearMaxDwjz: lastYearMax, LastYearMinDwjz: lastYearMin,
 			LastSeasonMaxDwjz: lastSeasonMax, LastSeasonMinDwjz: lastSeasonMin,
 			LastMonthMaxDwjz: lastMonthMax, LastMonthMinDwjz: lastMonthMin,
 			HistoryMaxDwjz: historyMax, HistoryMinDwjz: historyMin, HistoryAvgDwjz: historyAvg,
 			Tp80MinDwjz: tp80Min, Tp80MaxDwjz: tp80Max, Tp85MinDwjz: tp85Min, Tp85MaxDwjz: tp85Max,
-			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: 0, GszzlFormat: ""})
+			MaxDwjz: max, AvgDwjz: avg, MinDwjz: min, Gsz: 0, GszzlFormat: ""}
+		util.FillValuationFields(&report)
+		res = append(res, report)
 	}
 
 	return res, nil

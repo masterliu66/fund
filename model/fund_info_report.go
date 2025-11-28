@@ -11,26 +11,35 @@ type FundInfoReportDTO struct {
 }
 
 type FundInfoReport struct {
-	FundCode          string
-	Name              string
-	LastMonthMaxDwjz  float64
-	LastMonthMinDwjz  float64
-	LastSeasonMaxDwjz float64
-	LastSeasonMinDwjz float64
-	LastYearMaxDwjz   float64
-	LastYearMinDwjz   float64
-	HistoryMaxDwjz    float64
-	HistoryMinDwjz    float64
-	HistoryAvgDwjz    float64
-	MaxDwjz           float64
-	AvgDwjz           float64
-	MinDwjz           float64
-	Tp80MinDwjz       float64
-	Tp80MaxDwjz       float64
-	Tp85MinDwjz       float64
-	Tp85MaxDwjz       float64
-	Gsz               float64
-	GszzlFormat       string
+	FundCode           string
+	Name               string
+	LastMonthMaxDwjz   float64
+	LastMonthMinDwjz   float64
+	LastSeasonMaxDwjz  float64
+	LastSeasonMinDwjz  float64
+	LastYearMaxDwjz    float64
+	LastYearMinDwjz    float64
+	HistoryMaxDwjz     float64
+	HistoryMinDwjz     float64
+	HistoryAvgDwjz     float64
+	MaxDwjz            float64
+	AvgDwjz            float64
+	MinDwjz            float64
+	Tp80MinDwjz        float64
+	Tp80MaxDwjz        float64
+	Tp85MinDwjz        float64
+	Tp85MaxDwjz        float64
+	Gsz                float64
+	GszzlFormat        string
+	ValuationStatus    string  `json:"valuationStatus"`
+	ValuationScore     float64 `json:"valuationScore"`
+	InvestAdvice       string  `json:"investAdvice"`
+	RiskNote           string  `json:"riskNote"`
+	ExpectedReturnMin  float64 `json:"expectedReturnMin"`
+	ExpectedReturnMax  float64 `json:"expectedReturnMax"`
+	ExpectedReturnNote string  `json:"expectedReturnNote"`
+	DataStatus         string  `json:"dataStatus"`
+	DataStatusNote     string  `json:"dataStatusNote"`
 }
 
 func (report *FundInfoReport) ToString() string {

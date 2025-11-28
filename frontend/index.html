@@ -3,15 +3,39 @@
     <title>基金查询</title>
     <style>
       th:nth-child(2), td:nth-child(2) {
-        min-width: 300px;
+        min-width: 200px;
         text-align: left;
-        padding-left: 15px
+        padding-left: 15px;
+        position: relative;
+        border-right: 2px solid transparent;
+        transition: border-right-color 0.2s;
+      }
+      th:nth-child(20), td:nth-child(20) {
+        min-width: 260px;
+        text-align: left;
+        white-space: normal;
+      }
+      th:nth-child(2)::after {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        content: "";
+        position: absolute;
+        right: -8px;
+        top: 0;
+        bottom: 0;
+        width: 16px;
+        cursor: col-resize;
+      }
+      th:nth-child(2):hover {
+        border-right-color: #c966ea;
       }
 
       body {
         font-family: Arial,sans-serif;
         background: #667eea;
-        color: white;
+        color: #999;
         padding: 20px
       }
 
@@ -65,6 +89,9 @@
         <label><input type="checkbox" id="col15" onchange="toggleColumn(15)"> 本月最低</label>
         <label><input type="checkbox" id="col16" checked onchange="toggleColumn(16)"> 当日估值</label>
         <label><input type="checkbox" id="col17" checked onchange="toggleColumn(17)"> 当日涨幅</label>
+        <label><input type="checkbox" id="col18" checked onchange="toggleColumn(18)"> 估值状态</label>
+        <label><input type="checkbox" id="col19" checked onchange="toggleColumn(19)"> 投资建议</label>
+        <label><input type="checkbox" id="col20" checked onchange="toggleColumn(20)"> 预期年化收益</label>
         <br><br>
         <button onclick="showAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold;margin-right:10px">显示全部</button>
         <button onclick="hideAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold">隐藏全部</button>
@@ -91,6 +118,9 @@
           <th>本月最低</th>
           <th>当日估值</th>
           <th>当日涨幅</th>
+          <th>估值状态</th>
+          <th>投资建议</th>
+          <th>预期年化收益</th>
         </tr>
         </thead>
         <tbody id="body"></tbody>
@@ -117,7 +147,10 @@
         false,  // 14: 本月最高 (隐藏)
         false,  // 15: 本月最低 (隐藏)
         true,   // 16: 当日估值
-        true    // 17: 当日涨幅
+        true,   // 17: 当日涨幅
+        true,   // 18: 估值状态
+        true,   // 19: 投资建议
+        true    // 20: 预期年化收益
       ];
 
       let columnStates = [...DEFAULT_COLUMN_STATES];
@@ -147,6 +180,15 @@
         }).catch(e => msg("错误: " + e.message))
       }
 
+      function formatExpectedReturn(min, max) {
+        if (!min || !max || min <= 0 || max <= 0) {
+          return "-";
+        }
+        const minP = Math.round(min * 100);
+        const maxP = Math.round(max * 100);
+        return `${minP}% ~ ${maxP}%`;
+      }
+
       function show(d) {
         const body = document.getElementById("body");
         body.innerHTML = "";
@@ -169,7 +211,10 @@
                            <td>${fmt(item.MaxDwjz)}</td>
                            <td>${fmt(item.MinDwjz)}</td>
                            <td>${fmt(item.Gsz)}</td>
-                           <td>${item.GszzlFormat}</td>`;
+                           <td>${item.GszzlFormat}</td>
+                           <td>${item.valuationStatus || "-"}</td>
+                           <td>${item.investAdvice || "-"}</td>
+                           <td>${formatExpectedReturn(item.expectedReturnMin, item.expectedReturnMax)}</td>`;
           body.appendChild(row)
         });
         document.getElementById("table").style.display = "table"
@@ -199,7 +244,7 @@
       }
 
       function showAllColumns() {
-        for (let i = 0; i < 18; i++) {
+        for (let i = 0; i < DEFAULT_COLUMN_STATES.length; i++) {
           columnStates[i] = true;
           document.getElementById("col" + i).checked = true
         }
@@ -207,7 +252,7 @@
       }
 
       function hideAllColumns() {
-        for (let i = 0; i < 18; i++) {
+        for (let i = 0; i < DEFAULT_COLUMN_STATES.length; i++) {
           columnStates[i] = false;
           document.getElementById("col" + i).checked = false
         }
@@ -215,14 +260,48 @@
       }
 
       function resetToDefault() {
-        for (let i = 0; i < 18; i++) {
+        for (let i = 0; i < DEFAULT_COLUMN_STATES.length; i++) {
           columnStates[i] = DEFAULT_COLUMN_STATES[i];
           document.getElementById("col" + i).checked = columnStates[i]
         }
         applyColumnVisibility()
       }
 
+      let isResizing = false;
+      let startX = 0;
+      let startWidth = 0;
+
+      function initColumnResize() {
+        const th = document.querySelector("th:nth-child(2)");
+        if (!th) {
+          return;
+        }
+        th.addEventListener("mousedown", function (e) {
+          if (e.offsetX > th.offsetWidth - 10) {
+            isResizing = true;
+            startX = e.clientX;
+            startWidth = th.offsetWidth;
+            e.preventDefault()
+          }
+        });
+        document.addEventListener("mousemove", function (e) {
+          if (!isResizing) {
+            return;
+          }
+          const diff = e.clientX - startX;
+          const newWidth = Math.max(200, startWidth + diff);
+          const cells = document.querySelectorAll("th:nth-child(2),td:nth-child(2)");
+          cells.forEach(cell => {
+            cell.style.minWidth = newWidth + "px"
+          })
+        });
+        document.addEventListener("mouseup", function () {
+          isResizing = false
+        })
+      }
+
       window.addEventListener("load", function () {
+        initColumnResize();
         loadData();
       });
 
