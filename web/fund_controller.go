@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"fund/model"
 	"fund/service"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,10 @@ func GetFundsInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"code": 0, "msg": "success", "data": reports})
+
+	if len(c.Errors) > 0 {
+		fmt.Println("GetFundsInfo execute with errors:", c.Errors)
+	}
 }
 
 // GetFundInfo

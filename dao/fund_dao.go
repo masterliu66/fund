@@ -12,7 +12,7 @@ func FindLatestNewsFundInfo(code string) (*model.FundInfoPO, error) {
 	var fundInfoPO model.FundInfoPO
 	err := Db.Get(&fundInfoPO, "select * from fund_info where FUND_CODE=? order by JZRQ desc limit 1", code)
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("FindLatestNewsFundInfo exec failed, ", err)
 		return nil, err
 	}
 
@@ -25,7 +25,7 @@ func FindByFundCodeBetweenAndJZRQ(fundCode string, startTime time.Time, endTime 
 	err := Db.Select(&fundInfoPOs, "select * from fund_info where FUND_CODE=? AND JZRQ between ? AND ?",
 		fundCode, startTime, endTime)
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("FindByFundCodeBetweenAndJZRQ exec failed, ", err)
 		return nil, err
 	}
 	return fundInfoPOs, nil
@@ -37,7 +37,7 @@ func FindReportByFundCodeBetweenAndJZRQ(fundCode string, startTime time.Time, en
 	err := Db.Get(&fundInfoReport, "select FUND_CODE, NAME, MAX(DWJZ) MAX_DWJZ, MIN(DWJZ) MIN_DWJZ, AVG(DWJZ) AVG_DWJZ from fund_info where FUND_CODE=? AND JZRQ between ? AND ? GROUP BY FUND_CODE, NAME",
 		fundCode, startTime, endTime)
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("FindReportByFundCodeBetweenAndJZRQ exec failed, ", err)
 		return nil, err
 	}
 	return &fundInfoReport, nil
@@ -48,7 +48,7 @@ func FindReportByFundCode(fundCode string) (*model.FundInfoReportDTO, error) {
 	var fundInfoReport model.FundInfoReportDTO
 	err := Db.Get(&fundInfoReport, "select FUND_CODE, NAME, MAX(DWJZ) MAX_DWJZ, MIN(DWJZ) MIN_DWJZ, AVG(DWJZ) AVG_DWJZ from fund_info where FUND_CODE=? GROUP BY FUND_CODE, NAME", fundCode)
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("FindReportByFundCode exec failed, ", err)
 		return nil, err
 	}
 	return &fundInfoReport, nil
@@ -74,7 +74,7 @@ func FindReportByFundCodeAndRate(fundCode string, rate float64) (*model.FundInfo
 	`
 	err := Db.Get(&fundInfoReport, sql, fundCode, (1 - rate), rate)
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("FindReportByFundCodeAndRate exec failed, ", err)
 		return nil, err
 	}
 	return &fundInfoReport, nil
@@ -110,13 +110,13 @@ func InsertFund(fundInfo *model.FundInfo) error {
 	}
 
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("InsertFund exec failed, ", err)
 		return err
 	}
 
 	_, err = r.LastInsertId()
 	if err != nil {
-		fmt.Println("exec failed, ", err)
+		fmt.Println("InsertFund LastInsertId exec failed, ", err)
 		return err
 	}
 
@@ -134,12 +134,12 @@ func InsertFundHistory(fundDetail *model.FundDetail) {
 			r, err := conn.Exec("insert into fund_info(FUND_CODE, NAME, JZRQ, DWJZ, CREATED_AT, UPDATED_AT)values(?, ?, ?, ?, ?, ?)",
 				fundDetail.FundCode, fundDetail.Name, dateTime, v.Value, dateTime, dateTime)
 			if err != nil {
-				fmt.Println("exec failed, ", err)
+				fmt.Println("InsertFundHistory exec failed, ", err)
 				return err
 			}
 			_, err = r.LastInsertId()
 			if err != nil {
-				fmt.Println("exec failed, ", err)
+				fmt.Println("InsertFundHistory LastInsertId exec failed, ", err)
 				return err
 			}
 		}

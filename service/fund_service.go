@@ -112,7 +112,7 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 			gszzlFormat = fmt.Sprintf("%.2f %s", gszzl, "%")
 		}
 
-		fundInfoReport, err := dao.FindReportByFundCodeBetweenAndJZRQ(fund, startTime, endTime)
+		fundInfoReport, _ := dao.FindReportByFundCodeBetweenAndJZRQ(fund, startTime, endTime)
 
 		var min, max, avg float64
 		if fundInfoReport != nil {
@@ -130,68 +130,62 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 
 		fmt.Printf("fund: %s name: %s dwjz report max:%f min: %f avg: %f\n", fund, fundName, max, min, avg)
 
-		lastMonthFundInfoReport, err := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastMonthStartTime, lastMonthEndTime)
-		if err != nil {
-			return nil, err
+		lastMonthFundInfoReport, _ := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastMonthStartTime, lastMonthEndTime)
+		var lastMonthMin, lastMonthMax float64
+		if lastMonthFundInfoReport != nil {
+			lastMonthMin = lastMonthFundInfoReport.MinDwjz
+			lastMonthMax = lastMonthFundInfoReport.MaxDwjz
 		}
-
-		lastMonthMin := lastMonthFundInfoReport.MinDwjz
-		lastMonthMax := lastMonthFundInfoReport.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report lastMonthMax:%f lastMonthMin: %f\n",
 			fund, fundName, lastMonthMax, lastMonthMin)
 
-		lastSeasonFundInfoReport, err := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastSeasonStartTime, lastSeasonEndTime)
-		if err != nil {
-			return nil, err
+		lastSeasonFundInfoReport, _ := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastSeasonStartTime, lastSeasonEndTime)
+		var lastSeasonMin, lastSeasonMax float64
+		if lastSeasonFundInfoReport != nil {
+			lastSeasonMin = lastSeasonFundInfoReport.MinDwjz
+			lastSeasonMax = lastSeasonFundInfoReport.MaxDwjz
 		}
-
-		lastSeasonMin := lastSeasonFundInfoReport.MinDwjz
-		lastSeasonMax := lastSeasonFundInfoReport.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report lastSeasonMin:%f lastSeasonMax: %f\n",
 			fund, fundName, lastSeasonMin, lastSeasonMax)
 
-		lastYearFundInfoReport, err := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastYearStartTime, lastYearEndTime)
-		if err != nil {
-			return nil, err
+		lastYearFundInfoReport, _ := dao.FindReportByFundCodeBetweenAndJZRQ(fund, lastYearStartTime, lastYearEndTime)
+		var lastYearMin, lastYearMax float64
+		if lastYearFundInfoReport != nil {
+			lastYearMin = lastYearFundInfoReport.MinDwjz
+			lastYearMax = lastYearFundInfoReport.MaxDwjz
 		}
-
-		lastYearMin := lastYearFundInfoReport.MinDwjz
-		lastYearMax := lastYearFundInfoReport.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report lastYearMin:%f lastYearMax: %f\n",
 			fund, fundName, lastYearMin, lastYearMax)
 
-		historyFundInfoReport, err := dao.FindReportByFundCode(fund)
-		if err != nil {
-			return nil, err
+		historyFundInfoReport, _ := dao.FindReportByFundCode(fund)
+		var historyMin, historyMax, historyAvg float64
+		if historyFundInfoReport != nil {
+			historyMin = historyFundInfoReport.MinDwjz
+			historyMax = historyFundInfoReport.MaxDwjz
+			historyAvg = historyFundInfoReport.AvgDwjz
 		}
-
-		historyMin := historyFundInfoReport.MinDwjz
-		historyMax := historyFundInfoReport.MaxDwjz
-		historyAvg := historyFundInfoReport.AvgDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report historyMin:%f historyMax: %f lastYearAvg: %f\n",
 			fund, fundName, historyMin, historyMax, historyAvg)
 
-		historyFundInfoTp80Report, err := dao.FindReportByFundCodeAndRate(fund, 0.8)
-		if err != nil {
-			return nil, err
+		historyFundInfoTp80Report, _ := dao.FindReportByFundCodeAndRate(fund, 0.8)
+		var tp80Min, tp80Max float64
+		if historyFundInfoTp80Report != nil {
+			tp80Min = historyFundInfoTp80Report.MinDwjz
+			tp80Max = historyFundInfoTp80Report.MaxDwjz
 		}
-
-		tp80Min := historyFundInfoTp80Report.MinDwjz
-		tp80Max := historyFundInfoTp80Report.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report tp80Min:%f tp80Max: %f \n", fund, fundName, tp80Min, tp80Max)
 
-		historyFundInfoTp85Report, err := dao.FindReportByFundCodeAndRate(fund, 0.85)
-		if err != nil {
-			return nil, err
+		historyFundInfoTp85Report, _ := dao.FindReportByFundCodeAndRate(fund, 0.85)
+		var tp85Min, tp85Max float64
+		if historyFundInfoTp85Report != nil {
+			tp85Min = historyFundInfoTp85Report.MinDwjz
+			tp85Max = historyFundInfoTp85Report.MaxDwjz
 		}
-
-		tp85Min := historyFundInfoTp85Report.MinDwjz
-		tp85Max := historyFundInfoTp85Report.MaxDwjz
 
 		fmt.Printf("fund: %s name: %s dwjz report tp85Min:%f tp85Max: %f \n", fund, fundName, tp85Min, tp85Max)
 
@@ -280,7 +274,9 @@ func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 			min = 0
 		}
 		historyAvg = historySum / float64(len(infos))
-		avg = sum / total
+		if total > 0 {
+			avg = sum / total
+		}
 		sort.Float64s(dwjzList)
 		lengh := float64(len(dwjzList))
 		tp80Min = dwjzList[int(lengh*0.2)]
