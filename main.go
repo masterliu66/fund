@@ -33,7 +33,7 @@ func run() {
 	}(dao.Db)
 
 	go service.StartCron("30 14 * * *", sendFundsStrategyToMail, channel1)
-	go service.StartCron("00 15 * * *", insertFunds, channel2)
+	go service.StartCron("30 23 * * *", insertFunds, channel2)
 
 	router := web.NewRouter()
 
