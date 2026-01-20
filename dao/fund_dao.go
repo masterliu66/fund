@@ -22,7 +22,7 @@ func FindLatestNewsFundInfo(code string) (*model.FundInfoPO, error) {
 func FindByFundCodeBetweenAndJZRQ(fundCode string, startTime time.Time, endTime time.Time) ([]model.FundInfoPO, error) {
 
 	var fundInfoPOs []model.FundInfoPO
-	err := Db.Select(&fundInfoPOs, "select * from fund_info where FUND_CODE=? AND JZRQ between ? AND ?",
+	err := Db.Select(&fundInfoPOs, "select * from fund_info where FUND_CODE=? AND JZRQ between ? AND ? order by JZRQ",
 		fundCode, startTime, endTime)
 	if err != nil {
 		fmt.Println("FindByFundCodeBetweenAndJZRQ exec failed, ", err)

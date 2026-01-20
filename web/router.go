@@ -2,15 +2,16 @@ package web
 
 import (
 	_ "fund/docs"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
 )
 
 func NewRouter() *gin.Engine {
 	router := gin.New()
-	router.LoadHTMLFiles("frontend/index.html")
+	router.LoadHTMLFiles("frontend/index.html", "frontend/fund-detail.html")
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
 	})
@@ -20,5 +21,6 @@ func NewRouter() *gin.Engine {
 	router.POST("funds/:fund", InsertHistoryFunds)
 	router.GET("fund/records", GetFundRecords)
 	router.POST("fund/records", InsertFundRecord)
+	router.GET("/funds/details/:fund", GetFundsDetail)
 	return router
 }

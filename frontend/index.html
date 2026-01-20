@@ -11,22 +11,89 @@
         transition: border-right-color 0.2s;
       }
       th:nth-child(20), td:nth-child(20) {
-        min-width: 260px;
+        min-width: 40px;
+        text-align: center;
+        position: relative;
+      }
+      
+      .tooltip {
+        position: relative;
+        display: inline-block;
+        cursor: help;
+      }
+      
+      .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 300px;
+        background-color: #333;
+        color: #fff;
         text-align: left;
-        white-space: normal;
+        border-radius: 6px;
+        padding: 10px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -150px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 14px;
+        line-height: 1.4;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      }
+      
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+      }
+      
+      .icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        vertical-align: middle;
+      }
+      
+      .icon-severely-low { 
+        background-color: #006400; /* 深绿色 */
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      .icon-low { 
+        background-color: #90EE90; /* 浅绿色 */
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      .icon-normal { 
+        background-color: #FFD700; /* 浅黄色 */
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      .icon-high { 
+        background-color: #FF6B6B; /* 红色 */
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      .icon-severely-high { 
+        background-color: #8B0000; /* 深红色 */
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      .icon-unknown { 
+        background-color: #bfbfbf;
+        box-shadow: 0 0 2px rgba(0,0,0,0.3);
+      }
+      th:nth-child(2) {
+        position: relative;
       }
       th:nth-child(2)::after {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
         content: "";
         position: absolute;
-        right: -8px;
-        top: 0;
-        bottom: 0;
-        width: 16px;
+        right: -4px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 20px;
         cursor: col-resize;
+        z-index: 1;
+        background: transparent;
+        transition: background-color 0.2s;
       }
       th:nth-child(2):hover {
         border-right-color: #c966ea;
@@ -62,6 +129,75 @@
         background: #667eea;
         color: white
       }
+
+      .detail-button {
+          background-color: #4f46e5;
+          color: white;
+          border: none;
+          padding: 4px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 13px;
+          transition: all 0.2s;
+      }
+      
+      .detail-button:hover {
+          background-color: #4338ca;
+          transform: translateY(-1px);
+      }
+      
+      .action-cell {
+          text-align: center;
+          padding: 8px;
+      }
+      
+      /* Modal styles */
+      .modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.5);
+      }
+      
+      .modal-content {
+          background-color: #fefefe;
+          margin: 5% auto;
+          padding: 20px;
+          border: 1px solid #888;
+          width: 90%;
+          max-width: 1000px;
+          border-radius: 8px;
+          position: relative;
+      }
+      
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+      }
+      
+      .close:hover {
+          color: black;
+      }
+      
+      .modal-body {
+          margin-top: 15px;
+      }
+      
+      @media (max-width: 768px) {
+          .modal-content {
+              width: 95%;
+              margin: 10% auto;
+              padding: 15px;
+          }
+      }
+
     </style>
   </head>
   <body>
@@ -91,7 +227,7 @@
         <label><input type="checkbox" id="col17" checked onchange="toggleColumn(17)"> 当日涨幅</label>
         <label><input type="checkbox" id="col18" checked onchange="toggleColumn(18)"> 估值状态</label>
         <label><input type="checkbox" id="col19" onchange="toggleColumn(19)"> 投资建议</label>
-        <label><input type="checkbox" id="col20" checked onchange="toggleColumn(20)"> 预期年化收益</label>
+        <label><input type="checkbox" id="col20" onchange="toggleColumn(20)"> 预期年化收益</label>
         <br><br>
         <button onclick="showAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold;margin-right:10px">显示全部</button>
         <button onclick="hideAllColumns()" style="padding:8px 16px;background:white;color:#667eea;border:none;border-radius:4px;cursor:pointer;font-weight:bold">隐藏全部</button>
@@ -121,6 +257,7 @@
           <th>估值状态</th>
           <th>投资建议</th>
           <th>预期年化收益</th>
+          <th>操作</th>
         </tr>
         </thead>
         <tbody id="body"></tbody>
@@ -128,7 +265,7 @@
       <div id="msg"></div>
     </div>
     <script>
-      const API = window.location.origin;
+      const API = `window.location.origin`;
       const DEFAULT_COLUMN_STATES=[
         true,   // 0: 代码
         true,   // 1: 名称
@@ -149,8 +286,9 @@
         true,   // 16: 当日估值
         true,   // 17: 当日涨幅
         true,   // 18: 估值状态
-        false,   // 19: 投资建议 (隐藏)
-        true    // 20: 预期年化收益
+        false,  // 19: 投资建议 (隐藏)
+        false,  // 20: 预期年化收益 (隐藏)
+        true    // 21: 操作
       ];
 
       let columnStates = [...DEFAULT_COLUMN_STATES];
@@ -189,36 +327,104 @@
         return `${minP}% ~ ${maxP}%`;
       }
 
+      function getValuationIcon(valuationStatus) {
+        // Return empty string as we're using background colors now
+        return '';
+      }
+      
+      function getValuationIconClass(valuationStatus) {
+        switch(valuationStatus) {
+          case '严重低估': return 'icon-severely-low';
+          case '低估': return 'icon-low';
+          case '正常': return 'icon-normal';
+          case '高估': return 'icon-high';
+          case '严重高估': return 'icon-severely-high';
+          default: return 'icon-unknown';
+        }
+      }
+
       function show(d) {
-        const body = document.getElementById("body");
-        body.innerHTML = "";
-        d.forEach(item => {
-          const row = document.createElement("tr");
-          row.innerHTML = `<td>${item.FundCode}</td>
-                           <td>${item.Name}</td>
-                           <td>${fmt(item.HistoryMaxDwjz)}</td>
-                           <td>${fmt(item.HistoryMinDwjz)}</td>
-                           <td>${fmt(item.Tp80MinDwjz)}</td>
-                           <td>${fmt(item.Tp80MaxDwjz)}</td>
-                           <td>${fmt(item.Tp85MinDwjz)}</td
-                           ><td>${fmt(item.Tp85MaxDwjz)}</td>
-                           <td>${fmt(item.LastYearMaxDwjz)}</td>
-                           <td>${fmt(item.LastYearMinDwjz)}</td>
-                           <td>${fmt(item.LastSeasonMaxDwjz)}</td>
-                           <td>${fmt(item.LastSeasonMinDwjz)}</td>
-                           <td>${fmt(item.LastMonthMaxDwjz)}</td>
-                           <td>${fmt(item.LastMonthMinDwjz)}</td>
-                           <td>${fmt(item.MaxDwjz)}</td>
-                           <td>${fmt(item.MinDwjz)}</td>
-                           <td>${fmt(item.Gsz)}</td>
-                           <td>${item.GszzlFormat}</td>
-                           <td>${item.valuationStatus || "-"}</td>
-                           <td>${item.investAdvice || "-"}</td>
-                           <td>${formatExpectedReturn(item.expectedReturnMin, item.expectedReturnMax)}</td>`;
-          body.appendChild(row)
-        });
-        document.getElementById("table").style.display = "table"
-        applyColumnVisibility()
+          const body = document.getElementById("body");
+          body.innerHTML = "";
+          d.forEach(item => {
+              const row = document.createElement("tr");
+              // Create the row content
+              row.innerHTML = `
+                  <td>${item.FundCode}</td>
+                  <td>${item.Name}</td>
+                  <td>${fmt(item.HistoryMaxDwjz)}</td>
+                  <td>${fmt(item.HistoryMinDwjz)}</td>
+                  <td>${fmt(item.Tp80MinDwjz)}</td>
+                  <td>${fmt(item.Tp80MaxDwjz)}</td>
+                  <td>${fmt(item.Tp85MinDwjz)}</td>
+                  <td>${fmt(item.Tp85MaxDwjz)}</td>
+                  <td>${fmt(item.LastYearMaxDwjz)}</td>
+                  <td>${fmt(item.LastYearMinDwjz)}</td>
+                  <td>${fmt(item.LastSeasonMaxDwjz)}</td>
+                  <td>${fmt(item.LastSeasonMinDwjz)}</td>
+                  <td>${fmt(item.LastMonthMaxDwjz)}</td>
+                  <td>${fmt(item.LastMonthMinDwjz)}</td>
+                  <td>${fmt(item.MaxDwjz)}</td>
+                  <td>${fmt(item.MinDwjz)}</td>
+                  <td>${fmt(item.Gsz)}</td>
+                  <td>${item.GszzlFormat}</td>
+                  <td>${item.valuationStatus || "-"}</td>
+                  <td>${item.investAdvice ? 
+                      `<div class="tooltip">
+                          <div class="icon ${getValuationIconClass(item.valuationStatus)}" title="${item.valuationStatus || '未知'}">
+                              ${getValuationIcon(item.valuationStatus)}
+                          </div>
+                          <span class="tooltiptext">${item.investAdvice}</span>
+                      </div>` : 
+                      "-"}</td>
+                  <td>${formatExpectedReturn(item.expectedReturnMin, item.expectedReturnMax)}</td>
+                  <td class="action-cell"><button class="detail-button" onclick="showFundDetail('${item.FundCode}', '${item.Name}')">详情</button></td>
+              `;
+              body.appendChild(row);
+          });
+          document.getElementById("table").style.display = "table"
+          // Apply column visibility
+          applyColumnVisibility();
+      }
+
+      function showFundDetail(fundCode, fundName) {
+          // Create modal if it doesn't exist
+          let modal = document.getElementById('fundDetailModal');
+          if (!modal) {
+              modal = document.createElement('div');
+              modal.id = 'fundDetailModal';
+              modal.className = 'modal';
+              modal.innerHTML = `
+                  <div class="modal-content">
+                      <span class="close">&times;</span>
+                      <h2>${fundName} (${fundCode})</h2>
+                      <div class="modal-body">
+                          <iframe src="fund-detail.html?code=${fundCode}" frameborder="0" style="width: 100%; height: 70vh;"></iframe>
+                      </div>
+                  </div>
+              `;
+              document.body.appendChild(modal);
+              
+              // Add close button functionality
+              const closeBtn = modal.querySelector('.close');
+              closeBtn.onclick = function() {
+                  modal.style.display = 'none';
+              };
+              
+              // Close when clicking outside the modal
+              window.onclick = function(event) {
+                  if (event.target === modal) {
+                      modal.style.display = 'none';
+                  }
+              };
+          } else {
+              // Update existing modal content
+              modal.querySelector('h2').textContent = `${fundName} (${fundCode})`;
+              modal.querySelector('iframe').src = `fund-detail.html?code=${fundCode}`;
+          }
+          
+          // Show the modal
+          modal.style.display = 'block';
       }
 
       function fmt(n) {

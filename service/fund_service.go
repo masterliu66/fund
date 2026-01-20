@@ -298,6 +298,46 @@ func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 	return res, nil
 }
 
+func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundHistoryStats, error) {
+	fundInfo, err := dao.FindByFundCodeBetweenAndJZRQ(code, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+	if len(fundInfo) == 0 {
+		return nil, nil
+	}
+	stats := &model.FundHistoryStats{
+		FundName:  fundInfo[0].Name,
+		MinNav:    fundInfo[0].Dwjz,
+		MaxNav:    fundInfo[0].Dwjz,
+		AvgNav:    0,
+		StartDate: startDate.Format("2006-01-02"),
+		EndDate:   endDate.Format("2006-01-02"),
+		Data:      []model.FundHistory{},
+	}
+	var totalNav float64
+	lastData := fundInfo[0]
+	for _, data := range fundInfo {
+		if data.Dwjz < stats.MinNav {
+			stats.MinNav = data.Dwjz
+		}
+		if data.Dwjz > stats.MaxNav {
+			stats.MaxNav = data.Dwjz
+		}
+		totalNav += data.Dwjz
+		stats.Data = append(stats.Data, model.FundHistory{
+			FundCode:    data.FundCode,
+			Name:        data.Name,
+			Jzrq:        data.Jzrq,
+			Dwjz:        data.Dwjz,
+			DailyReturn: (data.Dwjz - lastData.Dwjz) / lastData.Dwjz * 100,
+		})
+		lastData = data
+	}
+	stats.AvgNav = totalNav / float64(len(fundInfo))
+	return stats, nil
+}
+
 func InsertFunds(funds []string) {
 
 	fmt.Println("Start insert funds……")

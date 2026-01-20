@@ -9,7 +9,7 @@
 
 ## Technical Context
 
-**Language/Version**: Go 1.x (Golang)  
+**Language/Version**: Go 1.25.4 (Golang)  
 **Primary Dependencies**: Gin (HTTP web framework), sqlx (DB access), standard library (net/http, time, etc.)  
 **Storage**: MySQL (primary OLTP database for 基金净值与历史数据)  
 **Testing**: [NEEDS CLARIFICATION: 单元测试框架选择（例如 testing + testify？）以及是否需要集成测试方案]  
