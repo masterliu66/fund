@@ -265,7 +265,7 @@
       <div id="msg"></div>
     </div>
     <script>
-      const API = `window.location.origin`;
+      const API = window.location.origin;
       const DEFAULT_COLUMN_STATES=[
         true,   // 0: 代码
         true,   // 1: 名称
@@ -399,7 +399,7 @@
                       <span class="close">&times;</span>
                       <h2>${fundName} (${fundCode})</h2>
                       <div class="modal-body">
-                          <iframe src="fund-detail.html?code=${fundCode}" frameborder="0" style="width: 100%; height: 70vh;"></iframe>
+                          <iframe src="detail?code=${fundCode}" frameborder="0" style="width: 100%; height: 70vh;"></iframe>
                       </div>
                   </div>
               `;
@@ -420,7 +420,7 @@
           } else {
               // Update existing modal content
               modal.querySelector('h2').textContent = `${fundName} (${fundCode})`;
-              modal.querySelector('iframe').src = `fund-detail.html?code=${fundCode}`;
+              modal.querySelector('iframe').src = `detail?code=${fundCode}`;
           }
           
           // Show the modal
