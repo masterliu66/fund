@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fund/model"
 	"fund/service"
+	"fund/util"
 	"net/http"
 	"time"
 
@@ -76,7 +77,12 @@ func GetFundsDetail(c *gin.Context) {
 		return
 	}
 	// 获取数据
-	stats, err := service.CalculateFundStats(code, startDate, endDate)
+	var stats *model.FundHistoryStats
+	if util.InSlice(model.ForeignFunds, code) {
+		stats, err = service.CalculateFundStats2(code, startDate, endDate)
+	} else {
+		stats, err = service.CalculateFundStats(code, startDate, endDate)
+	}
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"code": 500, "msg": "获取基金历史数据失败: " + err.Error()})
 		return

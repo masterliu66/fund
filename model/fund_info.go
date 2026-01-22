@@ -26,3 +26,10 @@ type FundInfo struct {
 	Gszzl    string `json:"gszzl"`
 	Gztime   string `json:"gztime"`
 }
+
+type FundSimpleInfo struct {
+	FundCode string  `json:"fundcode"`
+	Name     string  `json:"name"`
+	Jzrq     string  `json:"jzrq"`
+	Dwjz     float64 `json:"dwjz"`
+}

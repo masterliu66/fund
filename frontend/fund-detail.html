@@ -217,11 +217,11 @@
         }
         
         .positive {
-            color: var(--success-color);
+            color: var(--danger-color);
         }
         
         .negative {
-            color: var(--danger-color);
+            color: var(--success-color);
         }
         
         .pagination {
@@ -457,7 +457,7 @@
             // 更新统计信息
             function updateStats(data) {
                 if (data.data && data.data.length > 0) {
-                    const latestData = data.data[0]; // 最新数据
+                    const latestData = data.data[data.data.length-1]; // 最新数据
                     document.getElementById('currentNav').textContent = formatNumber(latestData.dwjz);
                     document.getElementById('maxNav').textContent = formatNumber(data.maxNav);
                     document.getElementById('minNav').textContent = formatNumber(data.minNav);

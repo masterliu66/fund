@@ -338,6 +338,48 @@ func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundH
 	return stats, nil
 }
 
+func CalculateFundStats2(code string, startDate, endDate time.Time) (*model.FundHistoryStats, error) {
+
+	detail, err := GetFundDetail(code)
+	if err != nil {
+		return nil, err
+	}
+	infos := detail.ToFundSimpleInfo(startDate, endDate)
+	if len(infos) == 0 {
+		return nil, nil
+	}
+	stats := &model.FundHistoryStats{
+		FundName:  infos[0].Name,
+		MinNav:    infos[0].Dwjz,
+		MaxNav:    infos[0].Dwjz,
+		AvgNav:    0,
+		StartDate: startDate.Format("2006-01-02"),
+		EndDate:   endDate.Format("2006-01-02"),
+		Data:      []model.FundHistory{},
+	}
+	var totalNav float64
+	lastData := infos[0]
+	for _, data := range infos {
+		if data.Dwjz < stats.MinNav {
+			stats.MinNav = data.Dwjz
+		}
+		if data.Dwjz > stats.MaxNav {
+			stats.MaxNav = data.Dwjz
+		}
+		totalNav += data.Dwjz
+		stats.Data = append(stats.Data, model.FundHistory{
+			FundCode:    data.FundCode,
+			Name:        data.Name,
+			Jzrq:        data.Jzrq,
+			Dwjz:        data.Dwjz,
+			DailyReturn: (data.Dwjz - lastData.Dwjz) / lastData.Dwjz * 100,
+		})
+		lastData = data
+	}
+	stats.AvgNav = totalNav / float64(len(infos))
+	return stats, nil
+}
+
 func InsertFunds(funds []string) {
 
 	fmt.Println("Start insert funds……")

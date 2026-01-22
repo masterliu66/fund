@@ -42,3 +42,22 @@ func (fundDetail *FundDetail) ToFundInfoAfterTimeStamp(timeStamp int64) []*FundI
 
 	return funds
 }
+
+func (fundDetail *FundDetail) ToFundSimpleInfo(startDate, endDate time.Time) []*FundSimpleInfo {
+
+	var funds []*FundSimpleInfo
+	for _, v := range fundDetail.NetWorthTrends {
+		if v.TimeStamp < startDate.UnixMilli() || v.TimeStamp > endDate.UnixMilli() {
+			continue
+		}
+		dateTime := time.UnixMilli(v.TimeStamp)
+		funds = append(funds, &FundSimpleInfo{
+			FundCode: fundDetail.FundCode,
+			Name:     fundDetail.Name,
+			Jzrq:     dateTime.Format("2006-01-02"),
+			Dwjz:     v.Value,
+		})
+	}
+
+	return funds
+}
