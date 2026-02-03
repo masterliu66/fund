@@ -315,16 +315,8 @@ func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundH
 		EndDate:   endDate.Format("2006-01-02"),
 		Data:      []model.FundHistory{},
 	}
-	var totalNav float64
 	lastData := fundInfo[0]
 	for _, data := range fundInfo {
-		if data.Dwjz < stats.MinNav {
-			stats.MinNav = data.Dwjz
-		}
-		if data.Dwjz > stats.MaxNav {
-			stats.MaxNav = data.Dwjz
-		}
-		totalNav += data.Dwjz
 		stats.Data = append(stats.Data, model.FundHistory{
 			FundCode:    data.FundCode,
 			Name:        data.Name,
@@ -333,6 +325,31 @@ func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundH
 			DailyReturn: (data.Dwjz - lastData.Dwjz) / lastData.Dwjz * 100,
 		})
 		lastData = data
+	}
+
+	todayFundInfo := GetFundInfo(code)
+	if todayFundInfo != nil && todayFundInfo.Jzrq != lastData.Jzrq {
+		todayDwjz, e := strconv.ParseFloat(todayFundInfo.Dwjz, 64)
+		if e == nil {
+			stats.Data = append(stats.Data, model.FundHistory{
+				FundCode:    todayFundInfo.FundCode,
+				Name:        todayFundInfo.Name,
+				Jzrq:        todayFundInfo.Jzrq,
+				Dwjz:        todayDwjz,
+				DailyReturn: (todayDwjz - lastData.Dwjz) / lastData.Dwjz * 100,
+			})
+		}
+	}
+
+	var totalNav float64
+	for _, data := range stats.Data {
+		if data.Dwjz < stats.MinNav {
+			stats.MinNav = data.Dwjz
+		}
+		if data.Dwjz > stats.MaxNav {
+			stats.MaxNav = data.Dwjz
+		}
+		totalNav += data.Dwjz
 	}
 	stats.AvgNav = totalNav / float64(len(fundInfo))
 	return stats, nil
