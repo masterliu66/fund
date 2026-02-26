@@ -16,13 +16,13 @@ import (
 // @Router /fund [get]
 func GetFundsInfo(c *gin.Context) {
 
-	reports, err := service.CalFundsStrategy(model.Funds)
+	reports, err := service.CalFundsStrategy(nil)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	reports2, err := service.CalFundsStrategy2(model.ForeignFunds)
+	reports2, err := service.CalFundsStrategy2(nil)
 	if err == nil {
 		reports = append(reports, reports2...)
 	}

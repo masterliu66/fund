@@ -66,6 +66,18 @@ func GetFundDetail(code string) (*model.FundDetail, error) {
 
 func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 
+	if funds == nil {
+		funds = make([]string, 0)
+		configs, err := dao.FindFundConfig(model.NormalFund)
+		if err != nil {
+			fmt.Println("FindFundConfig failed, ", err)
+			return nil, err
+		}
+		for _, config := range configs {
+			funds = append(funds, config.FundCode)
+		}
+	}
+
 	now := time.Now()
 	year, month, _ := now.Date()
 
@@ -204,6 +216,18 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 }
 
 func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
+
+	if funds == nil {
+		funds = make([]string, 0)
+		configs, err := dao.FindFundConfig(model.ForeignFund)
+		if err != nil {
+			fmt.Println("FindFundConfig failed, ", err)
+			return nil, err
+		}
+		for _, config := range configs {
+			funds = append(funds, config.FundCode)
+		}
+	}
 
 	now := time.Now()
 	year, month, _ := now.Date()

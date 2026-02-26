@@ -25,3 +25,8 @@ var ForeignFunds = []string{
 	"006327", // 易方达中证海外中国互联网
 	"019671", // 港股创新药
 }
+
+const (
+	NormalFund = iota
+	ForeignFund
+)
