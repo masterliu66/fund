@@ -201,7 +201,13 @@
     </style>
   </head>
   <body>
-    <div class="container"><h1>📊 基金数据查询</h1>
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>📊 基金数据查询</h1>
+        <button onclick="goToFundConfig()" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+          ⚙️ 基金配置管理
+        </button>
+      </div>
       <label><input id="search" placeholder="搜索基金代码"></label>
       <button onclick="search()">搜索</button>
       <button onclick="loadData()">重置</button>
@@ -292,6 +298,10 @@
       ];
 
       let columnStates = [...DEFAULT_COLUMN_STATES];
+
+      function goToFundConfig() {
+        window.location.href = '/fund-config';
+      }
 
       function loadData() {
         fetch(API + "/fund").then(r => r.json()).then(d => {

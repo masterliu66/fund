@@ -106,7 +106,29 @@ description: "Task list template for feature implementation: 基金估值分析�
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 7: Fund Config Management (Priority: P1) 🎯
+
+**Goal**: 管理员可以通过Web界面管理系统中的基金配置，包括查看、添加、编辑、删除基金配置。
+
+**Independent Test**: 独立实现fund_config管理功能时，管理员可以完成完整的基金配置CRUD操作，不依赖基金估值分析功能。
+
+### Implementation for Fund Config Management
+
+- [X] T039 [P] [US4] 在 `dao/fund_config_dao.go` 中补充缺失的DAO方法（如按ID查询、分页查询、软删除等）
+- [X] T032 [US4] 在 `service/fund_config_service.go` 中创建基金配置CRUD服务方法（CreateFundConfig、UpdateFundConfig、DeleteFundConfig、GetFundConfigs、GetFundConfigById）
+- [X] T033 [P] [US4] 在 `web/fund_config_controller.go` 中实现RESTful API控制器，处理fund_config的HTTP请求
+- [X] T034 [P] [US4] 在 `web/router.go` 中注册fund_config管理路由（GET /fund-configs、POST /fund-configs、PUT /fund-configs/:id、DELETE /fund-configs/:id）
+- [X] T035 [P] [US4] 创建 `frontend/fund-config.html` 页面，实现基金配置列表展示（支持分页、筛选、搜索）
+- [ ] T036 [US4] 在前端实现基金配置添加表单，包含数据验证和重复检查
+- [ ] T037 [US4] 在前端实现基金配置编辑功能，支持修改基金名称和类型
+- [ ] T038 [US4] 在前端实现基金配置删除功能，包含确认对话框和软删除处理
+- [ ] T040 [P] [US4] 添加基金配置的数据验证逻辑（基金代码格式、唯一性检查等）
+
+**Checkpoint**: 管理员可以通过 `/fund-config` 页面完成基金配置的完整管理流程，包括查看列表、添加新配置、编辑现有配置和删除配置。
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: 跨故事的优化和质量提升
 
@@ -115,6 +137,8 @@ description: "Task list template for feature implementation: 基金估值分析�
 - [ ] T029 [P] 性能检查：对 `/fund` 与 `/funds/{fund}` 做一次简单压测，确认在预计数据规模下 P95 延迟 < 300ms，并在 `specs/001-fund-valuation/research.md` 或 notes 中记录结果（如果创建该文件）
 - [ ] T030 [P] 日志与错误处理：检查 `web` 和 `service` 层对于主要错误路径是否有足够日志（含 fund code 和错误原因），并在必要处补充
 - [ ] T031 校对规格与实现：对照 `specs/001-fund-valuation/spec.md` 中的 FR 和 SC 条目，逐一验证是否已有对应实现与测试/验证方案
+- [ ] T041 [P] 在 `README_API_CHANGES.md` 中添加fund_config管理API的文档说明
+- [ ] T042 [P] 为fund_config管理功能添加基本的错误处理和日志记录
 
 ---
 
@@ -125,7 +149,8 @@ description: "Task list template for feature implementation: 基金估值分析�
 - **Phase 3 (US1)**: 依赖 Phase 2 完成
 - **Phase 4 (US2)**: 建议在 US1 完成后进行，但多数任务可与 US1 部分并行（如前端列结构调整）
 - **Phase 5 (US3)**: 依赖 US1 的估值计算基础完成
-- **Phase 6**: 在主要用户故事完成后进行
+- **Phase 7 (US4)**: 可独立进行，不依赖其他用户故事，建议与Phase 1-3并行开发
+- **Phase 8**: 在主要用户故事完成后进行
 
 ---
 
@@ -134,6 +159,7 @@ description: "Task list template for feature implementation: 基金估值分析�
 - DAO 与 model 字段补充（T005, T006）可以并行
 - 前端列头/列渲染调整（T019, T020, T021）可以与部分后端逻辑并行
 - 测试用例编写（T009, T010, T017, T023）可以与实现交错进行
+- **Fund Config管理（T032-T040）可以与Phase 1-3并行开发**，因为它是独立的管理功能
 
 ---
 
@@ -141,4 +167,5 @@ description: "Task list template for feature implementation: 基金估值分析�
 
 - **MVP（US1）**: 优先完成单只基金估值概览功能（Phase 3），确保用户可以输入代码并看到完整的估值信息与结论
 - **增量迭代**: 依次实现多基金对比（US2），再实现更丰富的投资建议与解释（US3）
-- **收尾与优化**: 最后统一处理文档、性能、日志与清理（Phase 6），确保满足宪章中的质量和性能要求
+- **管理功能**: Fund Config管理（US4）可以独立开发，为系统提供数据管理基础
+- **收尾与优化**: 最后统一处理文档、性能、日志与清理（Phase 8），确保满足宪章中的质量和性能要求

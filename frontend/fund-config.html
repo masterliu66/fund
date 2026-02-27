@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金配置管理 - 基金净值查询</title>
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #48bb78;
+            --danger-color: #f56565;
+            --warning-color: #ecc94b;
+            --bg-color: #f7fafc;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+            text-decoration: none;
+        }
+        
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .toolbar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .btn-secondary {
+            background: #a0aec0;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #718096;
+        }
+        
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #dd6b20;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .pagination-info {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0 10px;
+        }
+        
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .page-size-select {
+            padding: 4px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .page-button {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .page-button:hover {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+        }
+        
+        .page-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .modal-header {
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 15px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #1f2937;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 18px;
+            color: #718096;
+        }
+        
+        .error-message {
+            background: #fff5f5;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f56565;
+        }
+        
+        .success-message {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>基金配置管理</h1>
+                <a href="/" class="nav-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    返回首页
+                </a>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div id="errorContainer" style="display: none;" class="error-message"></div>
+        <div id="successContainer" style="display: none;" class="success-message"></div>
+        
+        <!-- 统计卡片 -->
+        <div class="stats-cards" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-label">总基金数量</div>
+                <div class="stat-value" id="totalFunds">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">普通基金</div>
+                <div class="stat-value" id="normalFunds">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">海外基金</div>
+                <div class="stat-value" id="overseasFunds">-</div>
+            </div>
+        </div>
+        
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索基金代码或名称...">
+                <button class="btn btn-primary" onclick="searchFunds()">搜索</button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="fundTypeFilter" class="filter-select" onchange="loadFunds()">
+                    <option value="">所有类型</option>
+                    <option value="0">普通基金</option>
+                    <option value="1">海外基金</option>
+                </select>
+                <button class="btn btn-success" onclick="showAddModal()">添加基金</button>
+            </div>
+        </div>
+        
+        <!-- 表格 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>基金代码</th>
+                        <th>基金名称</th>
+                        <th>基金类型</th>
+                        <th>创建时间</th>
+                        <th>更新时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="fundTableBody">
+                    <tr>
+                        <td colspan="6" class="loading">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 分页 -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+    
+    <!-- 添加/编辑模态框 -->
+    <div id="fundModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">添加基金配置</h2>
+            </div>
+            <form id="fundForm">
+                <div class="form-group">
+                    <label for="fundCode" class="form-label">基金代码 *</label>
+                    <input type="text" id="fundCode" class="form-input" placeholder="6位数字" maxlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="fundName" class="form-label">基金名称 *</label>
+                    <input type="text" id="fundName" class="form-input" placeholder="请输入基金名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="fundType" class="form-label">基金类型 *</label>
+                    <select id="fundType" class="form-select" required>
+                        <option value="">请选择基金类型</option>
+                        <option value="0">普通基金</option>
+                        <option value="1">海外基金</option>
+                    </select>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-header">
+                <h2>确认删除</h2>
+            </div>
+            <p>确定要删除基金配置 <strong id="deleteFundName"></strong> 吗？</p>
+            <p style="color: #718096; font-size: 14px;">此操作为软删除，数据不会物理删除。</p>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 初始化确认模态框 -->
+    <div id="initializeModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>初始化基金数据</h3>
+                <span class="close" onclick="closeInitializeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>确定要初始化基金 <strong id="initializeFundName"></strong> 的数据吗？</p>
+                <p style="color: #666; font-size: 14px;">此操作将获取该基金的详细信息并保存到数据库中。</p>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeInitializeModal()">取消</button>
+                <button type="button" class="btn btn-warning" onclick="confirmInitialize()">确认初始化</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API = `http://127.0.0.1:8000`;
+        let currentPage = 1;
+        let pageSize = 10; // 默认10条
+        let totalItems = 0;
+        let editingFundId = null;
+        let deletingFundId = null;
+        let initializingFundCode = null;
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadFunds();
+            
+            // 绑定表单提交事件
+            document.getElementById('fundForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveFund();
+            });
+            
+            // 绑定模态框关闭事件
+            document.querySelectorAll('.close').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    closeModal();
+                    closeDeleteModal();
+                });
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                if (event.target === document.getElementById('fundModal')) {
+                    closeModal();
+                }
+                if (event.target === document.getElementById('deleteModal')) {
+                    closeDeleteModal();
+                }
+            });
+            
+            // 搜索框回车事件
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchFunds();
+                }
+            });
+        });
+        
+        // 加载统计数据
+        function loadStats() {
+            fetch(`${API}/fund-configs/stats`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.code === 0) {
+                        document.getElementById('totalFunds').textContent = d.data.total || 0;
+                        document.getElementById('normalFunds').textContent = d.data.normal_fund || 0;
+                        document.getElementById('overseasFunds').textContent = d.data.overseas_fund || 0;
+                    }
+                })
+                .catch(error => {
+                    console.error('加载统计数据失败:', error);
+                });
+        }
+        
+        // 加载基金列表
+        function loadFunds(page = 1) {
+            currentPage = page;
+            const fundType = document.getElementById('fundTypeFilter').value;
+            
+            let url = `${API}/fund-configs?page=${page}&pageSize=${pageSize}`;
+            if (fundType) {
+                url += `&fundType=${fundType}`;
+            }
+            
+            document.getElementById('fundTableBody').innerHTML = '<tr><td colspan="6" class="loading">加载中...</td></tr>';
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.code === 0) {
+                        totalItems = d.data.total;
+                        renderTable(d.data.list);
+                        renderPagination();
+                    } else {
+                        showError(d.msg || '加载基金列表失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('加载基金列表失败:', error);
+                    showError('加载基金列表失败，请稍后重试');
+                });
+        }
+        
+        // 搜索基金
+        function searchFunds() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                loadFunds(1);
+                return;
+            }
+            
+            const url = `${API}/fund-configs/search?keyword=${encodeURIComponent(keyword)}&page=1&pageSize=${pageSize}`;
+            
+            document.getElementById('fundTableBody').innerHTML = '<tr><td colspan="6" class="loading">搜索中...</td></tr>';
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.code === 0) {
+                        totalItems = d.data.total;
+                        renderTable(d.data.list);
+                        renderPagination();
+                    } else {
+                        showError(d.msg || '搜索失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('搜索失败:', error);
+                    showError('搜索失败，请稍后重试');
+                });
+        }
+        
+        // 渲染表格
+        function renderTable(funds) {
+            const tbody = document.getElementById('fundTableBody');
+            
+            if (!funds || funds.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #718096;">暂无数据</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            funds.forEach(fund => {
+                const fundTypeText = fund.FundType === 0 ? '普通基金' : '海外基金';
+                const createdDate = fund.CreateAt ? new Date(fund.CreateAt).toLocaleString('zh-CN') : '-';
+                const updatedDate = fund.UpdateAt ? new Date(fund.UpdateAt).toLocaleString('zh-CN') : '-';
+                
+                html += `
+                    <tr>
+                        <td>${fund.FundCode}</td>
+                        <td>${fund.FundName}</td>
+                        <td>${fundTypeText}</td>
+                        <td>${createdDate}</td>
+                        <td>${updatedDate}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary" onclick="editFund(${fund.Id})" style="padding: 4px 8px; font-size: 12px;">编辑</button>
+                                ${fund.FundType === 0 ? `<button class="btn btn-success" onclick="initializeFund('${fund.FundCode}', '${fund.FundName}')" style="padding: 4px 8px; font-size: 12px;">初始化</button>` : ''}
+                                <button class="btn btn-danger" onclick="deleteFund(${fund.Id}, '${fund.FundName}')" style="padding: 4px 8px; font-size: 12px;">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+        
+        // 渲染分页
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(totalItems / pageSize);
+
+            let html = '';
+            
+            // 每页数量选择器 - 始终显示
+            html += `
+                <div class="page-size-selector">
+                    <span>每页显示:</span>
+                    <select class="page-size-select" onchange="changePageSize(this.value)">
+                        <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+                        <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+                        <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+                    </select>
+                    <span>条</span>
+                </div>
+            `;
+            
+            // 如果总页数大于1，显示分页导航
+            if (totalPages > 1) {
+                // 上一页
+                if (currentPage > 1) {
+                    html += `<button class="page-button" onclick="loadFunds(${currentPage - 1})">上一页</button>`;
+                }
+                
+                // 页码
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, currentPage + 2);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const activeClass = i === currentPage ? 'active' : '';
+                    html += `<button class="page-button ${activeClass}" onclick="loadFunds(${i})">${i}</button>`;
+                }
+                
+                // 下一页
+                if (currentPage < totalPages) {
+                    html += `<button class="page-button" onclick="loadFunds(${currentPage + 1})">下一页</button>`;
+                }
+            }
+            
+            // 页面信息 - 始终显示
+            if (totalItems > 0) {
+                const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+                const endItem = Math.min(currentPage * pageSize, totalItems);
+                html += `<div class="pagination-info">第 ${startItem}-${endItem} 条，共 ${totalItems} 条</div>`;
+            } else {
+                html += `<div class="pagination-info">暂无数据</div>`;
+            }
+            
+            console.log('renderPagination - html:', html);
+            pagination.innerHTML = html;
+        }
+        
+        // 改变每页数量
+        function changePageSize(newPageSize) {
+            pageSize = parseInt(newPageSize);
+            currentPage = 1; // 重置到第一页
+            loadFunds(1);
+        }
+        
+        // 显示添加模态框
+        function showAddModal() {
+            editingFundId = null;
+            document.getElementById('modalTitle').textContent = '添加基金配置';
+            document.getElementById('fundForm').reset();
+            document.getElementById('fundModal').style.display = 'block';
+        }
+        
+        // 编辑基金
+        function editFund(id) {
+            editingFundId = id;
+            document.getElementById('modalTitle').textContent = '编辑基金配置';
+            
+            // 获取基金详情
+            fetch(`${API}/fund-configs/${id}`)
+                .then(r => r.json())
+                .then(d => {
+                    if (d.code === 0) {
+                        const fund = d.data;
+                        document.getElementById('fundCode').value = fund.FundCode;
+                        document.getElementById('fundName').value = fund.FundName;
+                        document.getElementById('fundType').value = fund.FundType;
+                        document.getElementById('fundModal').style.display = 'block';
+                    } else {
+                        showError(d.msg || '获取基金详情失败');
+                    }
+                })
+                .catch(error => {
+                    console.error('获取基金详情失败:', error);
+                    showError('获取基金详情失败，请稍后重试');
+                });
+        }
+        
+        // 保存基金
+        function saveFund() {
+            const fundCode = document.getElementById('fundCode').value.trim();
+            const fundName = document.getElementById('fundName').value.trim();
+            const fundType = parseInt(document.getElementById('fundType').value);
+            
+            if (!fundCode || !fundName || isNaN(fundType)) {
+                showError('请填写完整信息');
+                return;
+            }
+            
+            const data = {
+                fundCode: fundCode,
+                fundName: fundName,
+                fundType: fundType
+            };
+            
+            const url = editingFundId ? `${API}/fund-configs/${editingFundId}` : `${API}/fund-configs`;
+            const method = editingFundId ? 'PUT' : 'POST';
+            
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.code === 0) {
+                    showSuccess(editingFundId ? '基金配置更新成功' : '基金配置添加成功');
+                    closeModal();
+                    loadFunds(currentPage);
+                    loadStats();
+                } else {
+                    showError(d.msg || '保存失败');
+                }
+            })
+            .catch(error => {
+                console.error('保存失败:', error);
+                showError('保存失败，请稍后重试');
+            });
+        }
+        
+        // 删除基金
+        function deleteFund(id, fundName) {
+            deletingFundId = id;
+            document.getElementById('deleteFundName').textContent = fundName;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+        
+        // 确认删除
+        function confirmDelete() {
+            if (!deletingFundId) return;
+            
+            fetch(`${API}/fund-configs/${deletingFundId}`, {
+                method: 'DELETE'
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.code === 0) {
+                    showSuccess('基金配置删除成功');
+                    closeDeleteModal();
+                    loadFunds(currentPage);
+                    loadStats();
+                } else {
+                    showError(d.msg || '删除失败');
+                }
+            })
+            .catch(error => {
+                console.error('删除失败:', error);
+                showError('删除失败，请稍后重试');
+            });
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('fundModal').style.display = 'none';
+            document.getElementById('fundForm').reset();
+            editingFundId = null;
+        }
+        
+        // 关闭删除模态框
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            deletingFundId = null;
+        }
+        
+        // 初始化基金
+        function initializeFund(fundCode, fundName) {
+            initializingFundCode = fundCode;
+            document.getElementById('initializeFundName').textContent = fundName;
+            document.getElementById('initializeModal').style.display = 'block';
+        }
+        
+        // 确认初始化
+        function confirmInitialize() {
+            if (!initializingFundCode) return;
+            
+            fetch(`${API}/fund-configs/initialize`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fundCode: initializingFundCode
+                })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.code === 0) {
+                    closeInitializeModal();
+                    showSuccess('基金数据初始化已启动，请稍后查看结果');
+                    // 可以选择重新加载数据
+                    setTimeout(() => {
+                        loadFunds(currentPage);
+                        loadStats();
+                    }, 2000); // 等待2秒后刷新数据
+                } else {
+                    showError(d.msg || '初始化失败');
+                }
+            })
+            .catch(error => {
+                console.error('初始化失败:', error);
+                showError('初始化失败，请稍后重试');
+            });
+        }
+        
+        // 关闭初始化模态框
+        function closeInitializeModal() {
+            document.getElementById('initializeModal').style.display = 'none';
+            initializingFundCode = null;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 显示成功信息
+        function showSuccess(message) {
+            const successContainer = document.getElementById('successContainer');
+            successContainer.textContent = message;
+            successContainer.style.display = 'block';
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                successContainer.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

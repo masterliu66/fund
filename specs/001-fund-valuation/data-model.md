@@ -75,6 +75,38 @@
 
 ---
 
+## Entity: FundConfig
+
+- **Purpose**: 管理系统中展示的基金配置信息，决定哪些基金会在前端列表中显示
+- **Fields**:
+  - `id` (int64, auto-increment)  
+    - 主键ID
+  - `fund_code` (string, unique)  
+    - 基金代码，6位数字
+  - `fund_name` (string)  
+    - 基金名称
+  - `fund_type` (int32)  
+    - 基金类型（0:普通基金, 1:海外基金）
+  - `created_at` (timestamp)  
+    - 创建时间
+  - `updated_at` (timestamp)  
+    - 更新时间
+  - `record_version` (int32)  
+    - 记录版本号
+  - `is_deleted` (int32)  
+    - 软删除标记（0:正常, 1:已删除）
+- **Indexes**:
+  - `(fund_code)` 唯一索引
+  - `(fund_type, is_deleted)` 复合索引
+- **Relationships**:
+  - 1 : N → `fund_info` (通过fund_code关联)
+- **Notes**:
+  - 软删除机制保证数据完整性
+  - 基金类型使用枚举值，便于前端展示和筛选
+  - 记录版本号用于并发控制
+
+---
+
 ## Entity: UserWatchlist (如未来需要)
 
 - **Purpose**: 保存用户自选基金列表

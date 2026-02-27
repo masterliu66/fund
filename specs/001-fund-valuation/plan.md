@@ -72,3 +72,31 @@ specs/001-fund-valuation/
 ## Complexity Tracking
 
 > 如未来引入更复杂的估值模型或缓存/队列等，在此处记录复杂度来源与简化方案评估。
+
+---
+
+## Fund Config Management Architecture
+
+**新增组件**: 基金配置管理模块，用于管理系统展示的基金列表
+
+**技术实现**:
+- **数据层**: 使用现有的 `FundConfigPO` 模型和 `fund_config_dao.go` 
+- **服务层**: 新增 `service/fund_config_service.go` 处理CRUD逻辑
+- **控制器层**: 新增 `web/fund_config_controller.go` 处理HTTP请求
+- **前端页面**: 新增 `frontend/fund-config.html` 管理界面
+
+**API设计**:
+- `GET /fund-configs` - 获取基金配置列表（支持分页和筛选）
+- `POST /fund-configs` - 创建新基金配置
+- `PUT /fund-configs/:id` - 更新基金配置
+- `DELETE /fund-configs/:id` - 软删除基金配置
+
+**数据验证规则**:
+- 基金代码：6位数字，唯一性检查
+- 基金名称：非空，长度限制
+- 基金类型：预定义类型枚举值
+
+**性能考虑**:
+- 列表查询支持分页，避免一次性加载过多数据
+- 基金代码添加时检查重复性
+- 软删除保证数据完整性
