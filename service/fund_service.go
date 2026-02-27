@@ -67,15 +67,7 @@ func GetFundDetail(code string) (*model.FundDetail, error) {
 func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 
 	if funds == nil {
-		funds = make([]string, 0)
-		configs, err := dao.FindFundConfig(model.NormalFund)
-		if err != nil {
-			fmt.Println("FindFundConfig failed, ", err)
-			return nil, err
-		}
-		for _, config := range configs {
-			funds = append(funds, config.FundCode)
-		}
+		funds = getFundConfigCodes(model.NormalFund)
 	}
 
 	now := time.Now()
@@ -218,15 +210,7 @@ func CalFundsStrategy(funds []string) ([]model.FundInfoReport, error) {
 func CalFundsStrategy2(funds []string) ([]model.FundInfoReport, error) {
 
 	if funds == nil {
-		funds = make([]string, 0)
-		configs, err := dao.FindFundConfig(model.ForeignFund)
-		if err != nil {
-			fmt.Println("FindFundConfig failed, ", err)
-			return nil, err
-		}
-		for _, config := range configs {
-			funds = append(funds, config.FundCode)
-		}
+		funds = getFundConfigCodes(model.ForeignFund)
 	}
 
 	now := time.Now()
@@ -425,6 +409,10 @@ func InsertFunds(funds []string) {
 
 	fmt.Println("Start insert funds……")
 
+	if funds == nil {
+		funds = getFundConfigCodes(model.NormalFund)
+	}
+
 	var fundInfos []*model.FundInfo
 	for _, code := range funds {
 		fundInfo := GetFundInfo(code)
@@ -510,4 +498,20 @@ func parseAndGetFundDetailValue(text string, key string, startSep byte, startOff
 	value := text[startIndex:endIndex]
 
 	return value
+}
+
+func getFundConfigCodes(fundType int32) []string {
+	funds := make([]string, 0)
+	configs, err := dao.FindFundConfig(fundType)
+	if err != nil {
+		fmt.Println("FindFundConfig failed, ", err)
+		if fundType == model.ForeignFund {
+			return model.ForeignFunds
+		}
+		return model.Funds
+	}
+	for _, config := range configs {
+		funds = append(funds, config.FundCode)
+	}
+	return funds
 }

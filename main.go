@@ -7,9 +7,10 @@ import (
 	"fund/service"
 	"fund/template"
 	"fund/web"
-	"github.com/jmoiron/sqlx"
 	"net/http"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 func main() {
@@ -32,8 +33,8 @@ func run() {
 		close(channel2)
 	}(dao.Db)
 
-	go service.StartCron("30 14 * * *", sendFundsStrategyToMail, channel1)
-	go service.StartCron("30 23 * * *", insertFunds, channel2)
+	//go service.StartCron("30 14 * * *", sendFundsStrategyToMail, channel1)
+	go service.StartCron("00 15 * * *", insertFunds, channel2)
 
 	router := web.NewRouter()
 
@@ -62,7 +63,7 @@ func sendFundsStrategyToMail() {
 }
 
 func insertFunds() {
-	service.InsertFunds(model.Funds)
+	service.InsertFunds(nil)
 }
 
 func insertHistoryFunds() {
