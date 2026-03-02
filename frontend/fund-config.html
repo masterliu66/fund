@@ -458,6 +458,7 @@
                         <th>基金代码</th>
                         <th>基金名称</th>
                         <th>基金类型</th>
+                        <th>排序值</th>
                         <th>创建时间</th>
                         <th>更新时间</th>
                         <th>操作</th>
@@ -465,7 +466,7 @@
                 </thead>
                 <tbody id="fundTableBody">
                     <tr>
-                        <td colspan="6" class="loading">加载中...</td>
+                        <td colspan="7" class="loading">加载中...</td>
                     </tr>
                 </tbody>
             </table>
@@ -498,6 +499,10 @@
                         <option value="0">普通基金</option>
                         <option value="1">海外基金</option>
                     </select>
+                </div>
+                <div class="form-group">
+                    <label for="fundSort" class="form-label">排序值 *</label>
+                    <input type="number" id="fundSort" class="form-input" placeholder="数值越小越靠前，默认为0" required>
                 </div>
                 <div class="form-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
@@ -681,6 +686,7 @@
                         <td>${fund.FundCode}</td>
                         <td>${fund.FundName}</td>
                         <td>${fundTypeText}</td>
+                        <td>${fund.Sort || 0}</td>
                         <td>${createdDate}</td>
                         <td>${updatedDate}</td>
                         <td>
@@ -764,6 +770,8 @@
             editingFundId = null;
             document.getElementById('modalTitle').textContent = '添加基金配置';
             document.getElementById('fundForm').reset();
+            // 设置排序字段的默认值
+            document.getElementById('fundSort').value = '0';
             document.getElementById('fundModal').style.display = 'block';
         }
         
@@ -781,6 +789,7 @@
                         document.getElementById('fundCode').value = fund.FundCode;
                         document.getElementById('fundName').value = fund.FundName;
                         document.getElementById('fundType').value = fund.FundType;
+                        document.getElementById('fundSort').value = fund.Sort || 0;
                         document.getElementById('fundModal').style.display = 'block';
                     } else {
                         showError(d.msg || '获取基金详情失败');
@@ -797,8 +806,9 @@
             const fundCode = document.getElementById('fundCode').value.trim();
             const fundName = document.getElementById('fundName').value.trim();
             const fundType = parseInt(document.getElementById('fundType').value);
+            const fundSort = parseInt(document.getElementById('fundSort').value) || 0;
             
-            if (!fundCode || !fundName || isNaN(fundType)) {
+            if (!fundCode || !fundName || isNaN(fundType) || isNaN(fundSort)) {
                 showError('请填写完整信息');
                 return;
             }
@@ -806,7 +816,8 @@
             const data = {
                 fundCode: fundCode,
                 fundName: fundName,
-                fundType: fundType
+                fundType: fundType,
+                sort: fundSort
             };
             
             const url = editingFundId ? `${API}/fund-configs/${editingFundId}` : `${API}/fund-configs`;

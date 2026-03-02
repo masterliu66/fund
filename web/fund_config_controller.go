@@ -108,6 +108,7 @@ func (c *FundConfigController) CreateFundConfig(ctx *gin.Context) {
 		FundCode string `json:"fundCode" binding:"required"`
 		FundName string `json:"fundName" binding:"required"`
 		FundType *int32 `json:"fundType" binding:"required"`
+		Sort     int32  `json:"sort"`
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -119,7 +120,7 @@ func (c *FundConfigController) CreateFundConfig(ctx *gin.Context) {
 	}
 
 	// 创建配置
-	fundConfig, err := c.fundConfigService.CreateFundConfig(req.FundCode, req.FundName, *req.FundType)
+	fundConfig, err := c.fundConfigService.CreateFundConfig(req.FundCode, req.FundName, *req.FundType, req.Sort)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"code": 400,
@@ -162,6 +163,7 @@ func (c *FundConfigController) UpdateFundConfig(ctx *gin.Context) {
 		FundCode string `json:"fundCode" binding:"required"`
 		FundName string `json:"fundName" binding:"required"`
 		FundType *int32 `json:"fundType" binding:"required"`
+		Sort     int32  `json:"sort"`
 	}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -173,7 +175,7 @@ func (c *FundConfigController) UpdateFundConfig(ctx *gin.Context) {
 	}
 
 	// 更新配置
-	fundConfig, err := c.fundConfigService.UpdateFundConfig(id, req.FundCode, req.FundName, *req.FundType)
+	fundConfig, err := c.fundConfigService.UpdateFundConfig(id, req.FundCode, req.FundName, *req.FundType, req.Sort)
 	if err != nil {
 		if err.Error() == "基金配置不存在" {
 			ctx.JSON(http.StatusNotFound, gin.H{

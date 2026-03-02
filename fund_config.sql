@@ -3,6 +3,7 @@ CREATE TABLE `fund`.`fund_config` (
   `FUND_CODE`  varchar(10) NOT NULL COMMENT '基金代码',
   `FUND_TYPE`  int(11) NOT NULL COMMENT '基金类型',
   `FUND_NAME`  varchar(100) NOT NULL COMMENT '基金名称' ,
+  `SORT`  int(11) NOT NULL DEFAULT '0' COMMENT '排序字段，数值越小越靠前',
   `CREATED_AT`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `UPDATED_AT`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   `RECORD_VERSION`  int(11) NOT NULL DEFAULT '1',

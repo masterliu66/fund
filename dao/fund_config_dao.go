@@ -52,7 +52,7 @@ func GetFundConfigByCode(fundCode string) (*model.FundConfigPO, error) {
 
 // CreateFundConfig 创建基金配置
 func CreateFundConfig(fundConfig *model.FundConfigPO) error {
-	result, err := Db.Exec(`INSERT INTO fund_config (FUND_CODE, FUND_TYPE, FUND_NAME) VALUES (?, ?, ?)`, fundConfig.FundCode, fundConfig.FundType, fundConfig.FundName)
+	result, err := Db.Exec(`INSERT INTO fund_config (FUND_CODE, FUND_TYPE, FUND_NAME, SORT) VALUES (?, ?, ?, ?)`, fundConfig.FundCode, fundConfig.FundType, fundConfig.FundName, fundConfig.Sort)
 
 	if err != nil {
 		fmt.Println("CreateFundConfig exec failed, ", err)
@@ -72,8 +72,8 @@ func CreateFundConfig(fundConfig *model.FundConfigPO) error {
 // UpdateFundConfig 更新基金配置
 func UpdateFundConfig(fundConfig *model.FundConfigPO) error {
 
-	result, err := Db.Exec(`UPDATE fund_config SET FUND_CODE=?, FUND_TYPE=?, FUND_NAME=?, RECORD_VERSION=RECORD_VERSION+1 WHERE ID=? and IS_DELETED=0`,
-		fundConfig.FundCode, fundConfig.FundType, fundConfig.FundName, fundConfig.Id)
+	result, err := Db.Exec(`UPDATE fund_config SET FUND_CODE=?, FUND_TYPE=?, FUND_NAME=?, SORT=?, RECORD_VERSION=RECORD_VERSION+1 WHERE ID=? and IS_DELETED=0`,
+		fundConfig.FundCode, fundConfig.FundType, fundConfig.FundName, fundConfig.Sort, fundConfig.Id)
 
 	if err != nil {
 		fmt.Println("UpdateFundConfig exec failed, ", err)
@@ -164,10 +164,10 @@ func GetFundConfigsWithPagination(page, pageSize int, fundType *int32) ([]model.
 	var dataErr error
 
 	if fundType != nil {
-		dataSql = "select * from fund_config where FUND_TYPE=? and IS_DELETED=0 order by CREATED_AT desc limit ? offset ?"
+		dataSql = "select * from fund_config where FUND_TYPE=? and IS_DELETED=0 order by FUND_TYPE, SORT, CREATED_AT desc limit ? offset ?"
 		dataErr = Db.Select(&fundConfigs, dataSql, *fundType, pageSize, offset)
 	} else {
-		dataSql = "select * from fund_config where IS_DELETED=0 order by CREATED_AT desc limit ? offset ?"
+		dataSql = "select * from fund_config where IS_DELETED=0 order by FUND_TYPE, SORT, CREATED_AT desc limit ? offset ?"
 		dataErr = Db.Select(&fundConfigs, dataSql, pageSize, offset)
 	}
 
@@ -208,10 +208,10 @@ func SearchFundConfigsWithPagination(page, pageSize int, keyword string) ([]mode
 	var dataErr error
 
 	if keyword != "" {
-		dataSql = "select * from fund_config where FUND_CODE=? OR FUND_NAME=? and IS_DELETED=0 order by CREATED_AT desc limit ? offset ?"
+		dataSql = "select * from fund_config where (FUND_CODE=? OR FUND_NAME=?) and IS_DELETED=0 order by FUND_TYPE, SORT, CREATED_AT desc limit ? offset ?"
 		dataErr = Db.Select(&fundConfigs, dataSql, keyword, keyword, pageSize, offset)
 	} else {
-		dataSql = "select * from fund_config where IS_DELETED=0 order by CREATED_AT desc limit ? offset ?"
+		dataSql = "select * from fund_config where IS_DELETED=0 order by FUND_TYPE, SORT, CREATED_AT desc limit ? offset ?"
 		dataErr = Db.Select(&fundConfigs, dataSql, pageSize, offset)
 	}
 

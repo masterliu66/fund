@@ -17,7 +17,7 @@ func NewFundConfigService() *FundConfigService {
 }
 
 // CreateFundConfig 创建基金配置
-func (s *FundConfigService) CreateFundConfig(fundCode, fundName string, fundType int32) (*model.FundConfigPO, error) {
+func (s *FundConfigService) CreateFundConfig(fundCode, fundName string, fundType int32, sort int32) (*model.FundConfigPO, error) {
 	// 数据验证
 	if err := s.validateFundConfig(fundCode, fundName, fundType, 0); err != nil {
 		return nil, err
@@ -37,6 +37,7 @@ func (s *FundConfigService) CreateFundConfig(fundCode, fundName string, fundType
 		FundCode: fundCode,
 		FundName: fundName,
 		FundType: fundType,
+		Sort:     sort,
 	}
 
 	if err := dao.CreateFundConfig(fundConfig); err != nil {
@@ -47,7 +48,7 @@ func (s *FundConfigService) CreateFundConfig(fundCode, fundName string, fundType
 }
 
 // UpdateFundConfig 更新基金配置
-func (s *FundConfigService) UpdateFundConfig(id int64, fundCode, fundName string, fundType int32) (*model.FundConfigPO, error) {
+func (s *FundConfigService) UpdateFundConfig(id int64, fundCode, fundName string, fundType int32, sort int32) (*model.FundConfigPO, error) {
 	// 数据验证
 	if err := s.validateFundConfig(fundCode, fundName, fundType, id); err != nil {
 		return nil, err
@@ -75,6 +76,7 @@ func (s *FundConfigService) UpdateFundConfig(id int64, fundCode, fundName string
 	existing.FundCode = fundCode
 	existing.FundName = fundName
 	existing.FundType = fundType
+	existing.Sort = sort
 
 	if err := dao.UpdateFundConfig(existing); err != nil {
 		return nil, fmt.Errorf("更新基金配置失败: %v", err)
