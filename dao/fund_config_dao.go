@@ -20,7 +20,7 @@ func FindFundConfig(fundType int32) ([]model.FundConfigPO, error) {
 // GetAllFundConfigs 获取所有未删除的基金配置
 func GetAllFundConfigs() ([]model.FundConfigPO, error) {
 	var fundConfigs []model.FundConfigPO
-	err := Db.Select(&fundConfigs, "select * from fund_config where IS_DELETED=0 order by CREATED_AT desc")
+	err := Db.Select(&fundConfigs, "select * from fund_config where IS_DELETED=0 order by FUND_TYPE, SORT, CREATED_AT desc")
 	if err != nil {
 		fmt.Println("GetAllFundConfigs exec failed, ", err)
 		return nil, err

@@ -268,6 +268,7 @@
         </thead>
         <tbody id="body"></tbody>
       </table>
+      <div id="pagination" style="text-align: center; margin: 20px 0;"></div>
       <div id="msg"></div>
     </div>
     <script>
@@ -303,14 +304,30 @@
         window.location.href = '/fund-config';
       }
 
-      function loadData() {
-        fetch(API + "/fund").then(r => r.json()).then(d => {
+      let currentPage = 1;
+      let pageSize = 20;
+      let totalItems = 0;
+      let totalPages = 0;
+
+      function loadData(page = 1) {
+        currentPage = page;
+        const url = API + "/fund?page=" + page + "&pageSize=" + pageSize;
+        console.log('loadData - URL:', url);
+        fetch(url).then(r => r.json()).then(d => {
+          console.log('loadData - Response:', d);
           if (d.code === 0) {
-            show(d.data)
+            totalItems = d.data.total;
+            totalPages = d.data.totalPages;
+            console.log('loadData - totalItems:', totalItems, 'totalPages:', totalPages);
+            show(d.data.list);
+            renderPagination();
           } else {
             msg("失败")
           }
-        }).catch(e => msg("错误: " + e.message))
+        }).catch(e => {
+          console.error('loadData - Error:', e);
+          msg("错误: " + e.message)
+        })
       }
 
       function search() {
@@ -514,6 +531,81 @@
         document.addEventListener("mouseup", function () {
           isResizing = false
         })
+      }
+
+      function renderPagination() {
+        const pagination = document.getElementById('pagination');
+        console.log('renderPagination - totalPages:', totalPages, 'currentPage:', currentPage, 'totalItems:', totalItems);
+        
+        let html = '';
+        
+        // 创建一个容器来包含所有分页元素
+        html += `<div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">`;
+        
+        // 每页数量选择器
+        html += `
+          <div style="color: #e2e8f0; font-weight: bold; display: flex; align-items: center;">
+            <span>每页显示:</span>
+            <select onchange="changePageSize(this.value)" style="margin: 0 10px; padding: 4px 8px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px;">
+              <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+              <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+              <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+            </select>
+            <span>条</span>
+          </div>
+        `;
+        
+        // 如果总页数大于1，显示分页导航
+        if (totalPages > 1) {
+          // 分页导航容器
+          html += `<div style="display: flex; align-items: center; gap: 5px;">`;
+          
+          // 上一页
+          if (currentPage > 1) {
+            html += `<button onclick="loadData(${currentPage - 1})" style="padding: 8px 16px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">上一页</button>`;
+          }
+          
+          // 页码
+          const startPage = Math.max(1, currentPage - 2);
+          const endPage = Math.min(totalPages, currentPage + 2);
+          
+          for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+              html += `<button onclick="loadData(${i})" style="margin: 0 2px; padding: 8px 12px; background: #4a5568; color: #f7fafc; border: 2px solid #718096; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${i}</button>`;
+            } else {
+              html += `<button onclick="loadData(${i})" style="margin: 0 2px; padding: 8px 12px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">${i}</button>`;
+            }
+          }
+          
+          // 下一页
+          if (currentPage < totalPages) {
+            html += `<button onclick="loadData(${currentPage + 1})" style="padding: 8px 16px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">下一页</button>`;
+          }
+          
+          html += `</div>`;
+        }
+        
+        // 页面信息
+        if (totalItems > 0) {
+          const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+          const endItem = Math.min(currentPage * pageSize, totalItems);
+          html += `<div style="color: #e2e8f0; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">第 ${startItem}-${endItem} 条，共 ${totalItems} 条</div>`;
+        } else {
+          html += `<div style="color: #e2e8f0; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">暂无数据</div>`;
+        }
+        
+        // 关闭主容器
+        html += `</div>`;
+        
+        console.log('renderPagination - HTML length:', html.length);
+        pagination.innerHTML = html;
+        console.log('renderPagination - Pagination element:', pagination.innerHTML.length > 0 ? 'has content' : 'empty');
+      }
+      
+      function changePageSize(newPageSize) {
+        pageSize = parseInt(newPageSize);
+        currentPage = 1;
+        loadData(1);
       }
 
       window.addEventListener("load", function () {
