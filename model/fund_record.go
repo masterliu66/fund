@@ -11,6 +11,7 @@ type FundRecordPO struct {
 	UnitPrice           float64 `db:"UNIT_PRICE"`
 	Date                string  `db:"DATE"`
 	Quantity            float64 `db:"QUANTITY"`
+	RemainQuantity      float64 `db:"REMAIN_QUANTITY"`
 	Gain                float64 `db:"GAIN"`
 	Profit              float64 `db:"PROFIT"`
 	TotalProfit         float64 `db:"TOTAL_PROFIT"`
@@ -23,7 +24,7 @@ type FundRecordPO struct {
 
 type FundRecordDTO struct {
 	FundCode    string  `json:"code"`
-	Name        string  `json:"name"`
+	FundName    string  `json:"name"`
 	OperateType int64   `json:"type"`
 	Amount      float64 `json:"amount"`
 	Date        string  `json:"date"`

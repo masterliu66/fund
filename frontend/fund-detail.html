@@ -472,15 +472,41 @@
                 // 准备图表数据
                 const chartData = {
                     labels: data.data.map(item => item.jzrq),
-                    datasets: [{
-                        label: '单位净值',
-                        data: data.data.map(item => item.dwjz),
-                        borderColor: 'rgba(102, 126, 234, 1)',
-                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
+                    datasets: [
+                        {
+                            label: '单位净值',
+                            data: data.data.map(item => item.dwjz),
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        // TP15指标线 (绿色)
+                        {
+                            label: 'TP15',
+                            data: Array(data.data.length).fill(data.tp85Min || 0),
+                            borderColor: 'rgba(72, 187, 120, 0.8)',
+                            backgroundColor: 'rgba(72, 187, 120, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5], // 虚线
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        },
+                        // TP85指标线 (红色)
+                        {
+                            label: 'TP85',
+                            data: Array(data.data.length).fill(data.tp85Max || 0),
+                            borderColor: 'rgba(245, 101, 101, 0.8)',
+                            backgroundColor: 'rgba(245, 101, 101, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5], // 虚线
+                            fill: false,
+                            pointRadius: 0,
+                            pointHoverRadius: 0
+                        }
+                    ]
                 };
                 
                 // 如果图表已存在，更新数据
@@ -499,14 +525,26 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: false
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
                             },
                             tooltip: {
                                 mode: 'index',
                                 intersect: false,
                                 callbacks: {
                                     label: function(context) {
-                                        return `单位净值: ${formatNumber(context.raw)}`;
+                                        if (context.dataset.label === '单位净值') {
+                                            return `单位净值: ${formatNumber(context.raw)}`;
+                                        } else if (context.dataset.label === 'TP15') {
+                                            return `TP15: ${formatNumber(context.raw)}`;
+                                        } else if (context.dataset.label === 'TP85') {
+                                            return `TP85: ${formatNumber(context.raw)}`;
+                                        }
+                                        return context.dataset.label + ': ' + formatNumber(context.raw);
                                     }
                                 }
                             }

@@ -20,7 +20,7 @@ func init() {
 
 func NewRouter() *gin.Engine {
 	router := gin.New()
-	router.LoadHTMLFiles("frontend/index.html", "frontend/fund-detail.html", "frontend/fund-config.html")
+	router.LoadHTMLFiles("frontend/index.html", "frontend/fund-detail.html", "frontend/fund-config.html", "frontend/fund-records.html")
 	router.Static("static", "frontend/static")
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "index.html", gin.H{})
@@ -30,6 +30,9 @@ func NewRouter() *gin.Engine {
 	})
 	router.GET("/fund-config", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "fund-config.html", gin.H{})
+	})
+	router.GET("/fund-records", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "fund-records.html", gin.H{})
 	})
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("fund", GetFundsInfo)

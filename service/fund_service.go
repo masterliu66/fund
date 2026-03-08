@@ -319,6 +319,8 @@ func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundH
 		MinNav:    fundInfo[0].Dwjz,
 		MaxNav:    fundInfo[0].Dwjz,
 		AvgNav:    0,
+		Tp85Min:   0,
+		Tp85Max:   0,
 		StartDate: startDate.Format("2006-01-02"),
 		EndDate:   endDate.Format("2006-01-02"),
 		Data:      []model.FundHistory{},
@@ -359,7 +361,16 @@ func CalculateFundStats(code string, startDate, endDate time.Time) (*model.FundH
 		}
 		totalNav += data.Dwjz
 	}
+
 	stats.AvgNav = totalNav / float64(len(fundInfo))
+
+	// 计算TP15和TP85指标
+	historyFundInfoTp85Report, _ := dao.FindReportByFundCodeAndRate(code, 0.85)
+	if historyFundInfoTp85Report != nil {
+		stats.Tp85Min = historyFundInfoTp85Report.MinDwjz
+		stats.Tp85Max = historyFundInfoTp85Report.MaxDwjz
+	}
+
 	return stats, nil
 }
 
@@ -378,6 +389,8 @@ func CalculateFundStats2(code string, startDate, endDate time.Time) (*model.Fund
 		MinNav:    infos[0].Dwjz,
 		MaxNav:    infos[0].Dwjz,
 		AvgNav:    0,
+		Tp85Min:   0,
+		Tp85Max:   0,
 		StartDate: startDate.Format("2006-01-02"),
 		EndDate:   endDate.Format("2006-01-02"),
 		Data:      []model.FundHistory{},
@@ -401,7 +414,21 @@ func CalculateFundStats2(code string, startDate, endDate time.Time) (*model.Fund
 		})
 		lastData = data
 	}
+
 	stats.AvgNav = totalNav / float64(len(infos))
+
+	// 计算TP15和TP85指标
+	allInfos := detail.ToFundInfo()
+	var dwjzList []float64
+	for _, info := range allInfos {
+		dwjz, _ := strconv.ParseFloat(info.Dwjz, 64)
+		dwjzList = append(dwjzList, dwjz)
+	}
+	sort.Float64s(dwjzList)
+	lengh := float64(len(dwjzList))
+	stats.Tp85Min = dwjzList[int(lengh*0.15)]
+	stats.Tp85Max = dwjzList[int(lengh*0.85)]
+
 	return stats, nil
 }
 

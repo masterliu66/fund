@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基金记录管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+
+        .remain-quantity {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .remain-quantity.zero {
+            color: #718096;
+            font-style: italic;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: #2d3748;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>📊 基金记录管理</h1>
+            <div>
+                <button onclick="goToHome()" class="nav-button">🏠 返回首页</button>
+                <button onclick="goToFundConfig()" class="nav-button">⚙️ 基金配置</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-input" placeholder="搜索基金代码或名称...">
+            <button onclick="search()" class="btn btn-primary">搜索</button>
+            <button onclick="loadRecords()" class="btn btn-secondary">重置</button>
+            <button onclick="showAddModal()" class="btn btn-success">添加记录</button>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>基金代码</th>
+                        <th>基金名称</th>
+                        <th>操作类型</th>
+                        <th>金额</th>
+                        <th>单价</th>
+                        <th>数量</th>
+                        <th>剩余份额</th>
+                        <th>收益</th>
+                        <th>收益率</th>
+                        <th>总收益</th>
+                        <th>操作日期</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    <tr>
+                        <td colspan="12" class="loading">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div id="pagination" style="text-align: center; margin: 20px 0;"></div>
+    </div>
+
+    <!-- 添加/编辑模态框 -->
+    <div id="recordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">添加基金记录</h2>
+            </div>
+            <form id="recordForm" onsubmit="saveRecord(event)">
+                <div class="form-group">
+                    <label for="fundCode" class="form-label">基金代码 *</label>
+                    <input type="text" id="fundCode" class="form-input" placeholder="6位数字" maxlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="fundName" class="form-label">基金名称 *</label>
+                    <input type="text" id="fundName" class="form-input" placeholder="请输入基金名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="operateType" class="form-label">操作类型 *</label>
+                    <select id="operateType" class="form-select" required>
+                        <option value="">请选择操作类型</option>
+                        <option value="0">买入</option>
+                        <option value="1">卖出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="amount" class="form-label">金额 *</label>
+                    <input type="number" id="amount" class="form-input" placeholder="请输入金额" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity" class="form-label">份额 *</label>
+                    <input type="number" id="quantity" class="form-input" placeholder="请输入份额" step="1000.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="date" class="form-label">操作日期 *</label>
+                    <input type="date" id="date" class="form-input" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDeleteModal()">&times;</span>
+            <div class="modal-header">
+                <h2>确认删除</h2>
+            </div>
+            <p>确定要删除基金记录 <strong id="deleteRecordName"></strong> 吗？</p>
+            <p style="color: #718096; font-size: 14px;">此操作为软删除，数据不会物理删除。</p>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin;
+        let currentPage = 1;
+        let pageSize = 20;
+        let totalItems = 0;
+        let totalPages = 0;
+        let editingRecordId = null;
+        let deletingRecordId = null;
+
+        function goToHome() {
+            window.location.href = '/';
+        }
+
+        function goToFundConfig() {
+            window.location.href = '/fund-config';
+        }
+
+        function loadRecords(page = 1) {
+            currentPage = page;
+            const url = API + "/fund/records?page=" + page + "&pageSize=" + pageSize;
+            console.log('loadRecords - URL:', url);
+            fetch(url).then(r => r.json()).then(d => {
+                console.log('loadRecords - Response:', d);
+                if (d.code === 0) {
+                    totalItems = d.data.total;
+                    totalPages = d.data.totalPages;
+                    console.log('loadRecords - totalItems:', totalItems, 'totalPages:', totalPages);
+                    renderTable(d.data.list);
+                    renderPagination();
+                } else {
+                    showMessage('失败', d.msg || '加载失败');
+                }
+            }).catch(e => {
+                console.error('loadRecords - Error:', e);
+                showMessage('错误', '加载失败，请稍后重试');
+            });
+        }
+
+        function search() {
+            const keyword = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                loadRecords(1);
+                return;
+            }
+            // 这里可以实现搜索逻辑
+            showMessage('提示', '搜索功能待实现');
+        }
+
+        function renderTable(records) {
+            const tbody = document.getElementById('recordsTableBody');
+            if (!records || records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" class="loading">暂无数据</td></tr>';
+                return;
+            }
+
+            let html = '';
+            records.forEach(record => {
+                const operateTypeText = record.OperateType === 0 ? '买入' : '卖出';
+                const gain = record.Gain || 0;
+                const profit = record.Profit || 0;
+                const profitRate = record.Amount > 0 ? (profit / record.Amount * 100).toFixed(2) : '0.00';
+                const remainQuantity = record.RemainQuantity || 0;
+                const remainQuantityClass = remainQuantity > 0 ? 'remain-quantity' : 'remain-quantity zero';
+                const remainQuantityText = remainQuantity > 0 ? remainQuantity.toFixed(2) : '0.00';
+                
+                html += `
+                    <tr>
+                        <td>${record.FundCode}</td>
+                        <td>${record.Name}</td>
+                        <td>${operateTypeText}</td>
+                        <td>¥${record.Amount.toFixed(2)}</td>
+                        <td>¥${record.UnitPrice.toFixed(4)}</td>
+                        <td>${record.Quantity.toFixed(2)}</td>
+                        <td class="${remainQuantityClass}">${remainQuantityText}</td>
+                        <td>¥${gain.toFixed(2)}</td>
+                        <td>${profitRate}%</td>
+                        <td>¥${profit.toFixed(2)}</td>
+                        <td>${record.Date}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="editRecord(${record.Id})">编辑</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteRecord(${record.Id}, '${record.Name}')">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            console.log('renderPagination - totalPages:', totalPages, 'currentPage:', currentPage, 'totalItems:', totalItems);
+            
+            let html = '';
+            
+            // 创建一个容器来包含所有分页元素
+            html += `<div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">`;
+            
+            // 每页数量选择器
+            html += `
+                <div style="color: #e2e8f0; font-weight: bold; display: flex; align-items: center;">
+                    <span>每页显示:</span>
+                    <select onchange="changePageSize(this.value)" style="margin: 0 10px; padding: 4px 8px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 4px;">
+                        <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+                        <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+                        <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+                    </select>
+                    <span>条</span>
+                </div>
+            `;
+            
+            // 如果总页数大于1，显示分页导航
+            if (totalPages > 1) {
+                // 分页导航容器
+                html += `<div style="display: flex; align-items: center; gap: 5px;">`;
+                
+                // 上一页
+                if (currentPage > 1) {
+                    html += `<button onclick="loadRecords(${currentPage - 1})" style="padding: 8px 16px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">上一页</button>`;
+                }
+                
+                // 页码
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, currentPage + 2);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    if (i === currentPage) {
+                        html += `<button onclick="loadRecords(${i})" style="margin: 0 2px; padding: 8px 12px; background: #4a5568; color: #f7fafc; border: 2px solid #718096; border-radius: 6px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${i}</button>`;
+                    } else {
+                        html += `<button onclick="loadRecords(${i})" style="margin: 0 2px; padding: 8px 12px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">${i}</button>`;
+                    }
+                }
+                
+                // 下一页
+                if (currentPage < totalPages) {
+                    html += `<button onclick="loadRecords(${currentPage + 1})" style="padding: 8px 16px; background: rgba(45, 55, 72, 0.9); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.3); border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s;">下一页</button>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // 页面信息
+            if (totalItems > 0) {
+                const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+                const endItem = Math.min(currentPage * pageSize, totalItems);
+                html += `<div style="color: #e2e8f0; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">第 ${startItem}-${endItem} 条，共 ${totalItems} 条</div>`;
+            } else {
+                html += `<div style="color: #e2e8f0; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">暂无数据</div>`;
+            }
+            
+            // 关闭主容器
+            html += `</div>`;
+            
+            console.log('renderPagination - HTML length:', html.length);
+            pagination.innerHTML = html;
+            console.log('renderPagination - Pagination element:', pagination.innerHTML.length > 0 ? 'has content' : 'empty');
+        }
+
+        function changePageSize(newPageSize) {
+            pageSize = parseInt(newPageSize);
+            currentPage = 1;
+            loadRecords(1);
+        }
+
+        function showAddModal() {
+            editingRecordId = null;
+            document.getElementById('modalTitle').textContent = '添加基金记录';
+            document.getElementById('recordForm').reset();
+            document.getElementById('recordModal').style.display = 'block';
+        }
+
+        function editRecord(id) {
+            editingRecordId = id;
+            document.getElementById('modalTitle').textContent = '编辑基金记录';
+            // 这里应该获取记录详情并填充表单
+            showMessage('提示', '编辑功能待实现');
+        }
+
+        function deleteRecord(id, name) {
+            deletingRecordId = id;
+            document.getElementById('deleteRecordName').textContent = name;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        function confirmDelete() {
+            if (!deletingRecordId) return;
+            // 这里实现删除逻辑
+            showMessage('提示', '删除功能待实现');
+        }
+
+        function saveRecord(event) {
+            event.preventDefault();
+            const formData = {
+                code: document.getElementById('fundCode').value.trim(),
+                name: document.getElementById('fundName').value.trim(),
+                type: parseInt(document.getElementById('operateType').value),
+                amount: parseFloat(document.getElementById('amount').value),
+                quantity: parseFloat(document.getElementById('quantity').value),
+                date: document.getElementById('date').value
+            };
+
+            const url = API + "/fund/records";
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.code === 0) {
+                    closeModal();
+                    showMessage('成功', '基金记录添加成功');
+                    loadRecords(currentPage);
+                } else {
+                    showMessage('失败', d.msg || '添加失败');
+                }
+            })
+            .catch(error => {
+                console.error('添加失败:', error);
+                showMessage('错误', '添加失败，请稍后重试');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('recordModal').style.display = 'none';
+            document.getElementById('recordForm').reset();
+            editingRecordId = null;
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            deletingRecordId = null;
+        }
+
+        function showMessage(title, message) {
+            // 简单的消息提示，可以后续优化为更好的UI
+            alert(`${title}: ${message}`);
+        }
+
+        // 页面加载时初始化
+        window.addEventListener("load", function () {
+            loadRecords();
+        });
+
+        // 绑定模态框关闭事件
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                closeModal();
+                closeDeleteModal();
+            });
+        });
+
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('recordModal')) {
+                closeModal();
+            }
+            if (event.target === document.getElementById('deleteModal')) {
+                closeDeleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -7,6 +7,7 @@ CREATE TABLE `fund`.`fund_record` (
   `UNIT_PRICE` decimal(10,2) NOT NULL COMMENT '成交单价',
   `DATE` date NOT NULL COMMENT '操作日期',
   `QUANTITY` decimal(10,2) NOT NULL COMMENT '份额',
+  `REMAIN_QUANTITY` decimal(10,2) NOT NULL default '0' COMMENT '剩余份额',
   `GAIN`   decimal(10,2)  NOT NULL COMMENT '涨幅',
   `PROFIT` decimal(10,2) NOT NULL COMMENT '盈利',
   `TOTAL_PROFIT` decimal(10,2) NOT NULL COMMENT '累积盈利',

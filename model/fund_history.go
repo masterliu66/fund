@@ -13,6 +13,8 @@ type FundHistoryStats struct {
 	MinNav    float64       `json:"minNav"`
 	MaxNav    float64       `json:"maxNav"`
 	AvgNav    float64       `json:"avgNav"`
+	Tp85Min   float64       `json:"tp85Min"`
+	Tp85Max   float64       `json:"tp85Max"`
 	StartDate string        `json:"startDate"`
 	EndDate   string        `json:"endDate"`
 	Data      []FundHistory `json:"data"`
